@@ -1,8 +1,9 @@
+import os
 import discord
 from discord.ext import commands
 
 # 請記得替換成你自己的 Bot Token
-TOKEN = 'MTMyMzIzMjUzMTcxMzM1OTk5NA.GEekIw.V_abAfnIjY8a40tYvtLgSxXk9Het0D9vt10X9g'
+TOKEN = '(DISCORD_BOT_TOKEN)'
 
 # 定義粉紅色
 PINK = discord.Color.from_rgb(255, 182, 193)
