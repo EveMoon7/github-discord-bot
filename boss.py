@@ -1,4 +1,3 @@
-import os
 import json
 import discord
 import unicodedata
@@ -10,7 +9,7 @@ from discord.ext import commands
 logging.basicConfig(level=logging.INFO)
 
 # 取得 Discord Bot Token
-TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+TOKEN = 'MTMyMzIzMjUzMTcxMzM1OTk5NA.GEekIw.V_abAfnIjY8a40tYvtLgSxXk9Het0D9vt10X9g'
 if not TOKEN:
     raise ValueError("請先設定環境變數 DISCORD_BOT_TOKEN！")
 
