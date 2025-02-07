@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 
 # 請記得替換成你自己的 Bot Token
-TOKEN = ('DISCORD_BOT_TOKEN')
+TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 
 # 定義粉紅色
 PINK = discord.Color.from_rgb(255, 182, 193)
