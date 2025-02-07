@@ -10,7 +10,7 @@ from discord.ext import commands
 logging.basicConfig(level=logging.INFO)
 
 # 取得 Discord Bot Token
-TOKEN = '(DISCORD_BOT_TOKEN)'
+TOKEN = ('DISCORD_BOT_TOKEN')
 if not TOKEN:
     raise ValueError("請先設定環境變數 DISCORD_BOT_TOKEN！")
 
