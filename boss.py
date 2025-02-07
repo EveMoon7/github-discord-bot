@@ -91,4 +91,50 @@ def create_boss_embed(boss_info, boss_type):
 
     embed.add_field(name="属性", value=f"{boss_info.get('屬性', 'N/A')}", inline=False)
     embed.add_field(name="物防 P.Def", value=f"{boss_info.get('物防', 'N/A')}", inline=True)
-    embed.add_f
+    embed.add_field(name="魔防 M.Def", value=f"{boss_info.get('魔防', 'N/A')}", inline=True)
+    embed.add_field(name="物理抗性 P.Res", value=f"{boss_info.get('物理抗性', 'N/A')}", inline=True)
+    embed.add_field(name="魔法抗性 M.Res", value=f"{boss_info.get('魔法抗性', 'N/A')}", inline=True)
+    embed.add_field(name="回避 Flee", value=f"{boss_info.get('迴避', 'N/A')}", inline=True)
+
+    # 处理暴抗信息
+    crt_res = boss_info.get("暴抗", "N/A")
+    if isinstance(crt_res, dict):
+        crt_res = "\n".join([f"{k}: {v}" for k, v in crt_res.items()])
+    embed.add_field(name="暴抗 Crt.Res", value=f"{crt_res}", inline=True)
+
+    # 额外字段
+    optional_fields = ["控制", "破位效果", "階段", "傷害上限 (MaxHP)"]
+    for field in optional_fields:
+        if boss_info.get(field):
+            embed.add_field(name=field, value=boss_info[field], inline=False)
+
+    # 设置图片
+    if boss_info.get("圖片"):
+        embed.set_image(url=boss_info["圖片"])
+
+    return embed
+
+# 处理 >boss 指令
+@bot.command()
+async def boss(ctx, *, query: str = None):
+    """查询 Boss 相关信息。"""
+    if not query:
+        await ctx.send("❌ 请输入 Boss 名称或别名！")
+        return
+
+    result = find_boss(query)
+    if not result:
+        await ctx.send("❌ 未找到该 Boss，请检查名称是否正确！")
+        return
+
+    boss_info, boss_type = result
+    embed = create_boss_embed(boss_info, boss_type)
+    await ctx.send(embed=embed)
+
+# 机器人启动日志
+@bot.event
+async def on_ready():
+    logging.info(f"✅ 已登录为 {bot.user}")
+
+# 运行机器人
+bot.run(TOKEN)
