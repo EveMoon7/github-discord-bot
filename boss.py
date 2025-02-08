@@ -142,6 +142,8 @@ def create_boss_embed(boss_info, boss_type):
         embed.add_field(name="⋆˙ 階段/模式 Phase ˙⋆", value=f"{boss_info.get('階段')}\n\u200b", inline=False)
     if boss_info.get("傷害上限 (MaxHP)"):
         embed.add_field(name="⋆˙ 傷害上限 (MaxHP) ˙⋆", value=f"{boss_info.get('傷害上限 (MaxHP)')}\n\u200b", inline=False)
+    if boss_info.get("注意"):
+        embed.add_field(name="⋆˙ 注意 Notice ˙⋆", value=f"{boss_info.get('注意')}\n\u200b", inline=False)
 
     # 設置圖片
     if boss_info.get("圖片"):
