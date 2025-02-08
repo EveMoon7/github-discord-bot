@@ -3,50 +3,49 @@ import json
 import discord
 import unicodedata
 import logging
-import random
 from discord.ext import commands
 from dotenv import load_dotenv
 
-# 载入 .env 文件
+# 載入 .env 檔案
 load_dotenv()
 
-# 设置 logging 输出
+# 設定 logging 輸出
 logging.basicConfig(level=logging.INFO)
 
-# 获取 Discord Bot Token
+# 取得 Discord Bot Token
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 if not TOKEN:
-    raise ValueError("❌ 请先设置环境变量 DISCORD_BOT_TOKEN ！")
+    raise ValueError("❌ 請先設定環境變數 DISCORD_BOT_TOKEN ！")
 
-# 设置 intents，启用消息内容权限
+# 設置 intents，啟用訊息內容權限
 intents = discord.Intents.default()
 intents.message_content = True
 
-# 初始化机器人
+# 初始化機器人
 bot = commands.Bot(command_prefix=">", intents=intents, case_insensitive=True)
 
 def normalize(text: str) -> str:
-    """使用 Unicode NFKC 规范化字符串，方便匹配。"""
+    """使用 Unicode NFKC 規範化字串，方便匹配。"""
     return unicodedata.normalize("NFKC", text).lower().strip()
 
-# 读取 JSON 数据
+# 讀取 JSON 數據
 def load_json(filename):
-    """读取 JSON 数据，出现错误时返回空字典。"""
+    """讀取 JSON 數據，發生錯誤時返回空字典。"""
     path = os.path.join(os.path.dirname(__file__), filename)
     try:
         with open(path, "r", encoding="utf-8") as file:
             return json.load(file)
     except (FileNotFoundError, json.JSONDecodeError) as e:
-        logging.error(f"❌ 读取 {filename} 时发生错误: {e}")
+        logging.error(f"❌ 讀取 {filename} 時發生錯誤: {e}")
         return {}
 
-# 载入所有 Boss 数据
+# 載入所有 Boss 數據
 main_quest_boss_data = load_json("Main_Quest_Boss_Data.json")
 high_difficulty_boss_data = load_json("High_Difficulty_Boss_Data.json")
 event_boss_data = load_json("Event_Boss_Data.json")
 guild_raid_boss_data = load_json("Guild_Raid_Boss_Data.json")
 
-# 整合所有 Boss 数据集
+# 整合所有 Boss 數據集
 boss_data_sets = {
     "main": main_quest_boss_data,
     "high": high_difficulty_boss_data,
@@ -54,14 +53,25 @@ boss_data_sets = {
     "guild": guild_raid_boss_data
 }
 
+# 定義 Boss 類型的友好名稱與描述
+boss_type_mapping = {
+    "main": {"label": "主線王", "description": "Main Quest Boss"},
+    "high": {"label": "高難王", "description": "High Difficulty Boss"},
+    "event": {"label": "活動王", "description": "Event Boss"},
+    "guild": {"label": "公會王", "description": "Guild Raid Boss"}
+}
+
 # 搜索 Boss
 def find_boss(query: str):
     """
-    根据查询字符串搜索所有 Boss 数据。
-    先尝试完全匹配（名称或别名相同），若未找到则尝试模糊匹配。
+    根據查詢字串搜索所有 Boss 數據。
+    優先嘗試完全匹配（名稱或別名相同），
+    若未找到則嘗試模糊匹配：
+      - 如果只有一項模糊匹配則直接返回該 Boss，
+      - 如果存在多項匹配則返回匹配列表，用於下拉選單選擇。
     """
     query_norm = normalize(query)
-    results = []
+    ambiguous = []
 
     for boss_type, data in boss_data_sets.items():
         for boss in data.values():
@@ -74,67 +84,161 @@ def find_boss(query: str):
 
             # 模糊匹配
             if query_norm in name_norm or any(query_norm in alias for alias in aliases_norm):
-                results.append((boss, boss_type))
+                ambiguous.append((boss, boss_type))
 
-    return results[0] if results else None
+    if ambiguous:
+        if len(ambiguous) == 1:
+            return ambiguous[0]
+        else:
+            return ambiguous
 
-# 创建 Boss Embed
+    return None
+
+# 創建 Boss Embed
 def create_boss_embed(boss_info, boss_type):
     """
-    生成 Boss 的 Discord Embed 信息卡片。
+    生成 Boss 的 Discord Embed 資訊卡片。
     """
+    friendly = boss_type_mapping.get(boss_type, {"label": boss_type.upper()})
     embed = discord.Embed(
-        title=f"✧*。{boss_type.upper()} Boss: {boss_info.get('名稱', '未知')} 。*✧",
-        description=f"❀ 章节: {boss_info.get('章節', '未知')} ❀\n❀ 地点: {boss_info.get('地點', '未知')} ❀",
+        title=f"✧*。{friendly['label']} Boss: {boss_info.get('名稱', '未知')} 。*✧",
+        description=f"❀ 章節 Phase: {boss_info.get('章節', '未知')} ❀\n❀ 地點: {boss_info.get('地點', '未知')} ❀",
         color=discord.Color.magenta()
     )
 
-    embed.add_field(name="属性", value=f"{boss_info.get('屬性', 'N/A')}", inline=False)
+    embed.add_field(
+        name="╭⋯⋯⋯⋯ 屬性 Element ⋯⋯⋯⋯╮",
+        value=f"{boss_info.get('屬性', 'N/A')}\n\u200b",
+        inline=False
+    )
     embed.add_field(name="物防 P.Def", value=f"{boss_info.get('物防', 'N/A')}", inline=True)
-    embed.add_field(name="魔防 M.Def", value=f"{boss_info.get('魔防', 'N/A')}", inline=True)
+    embed.add_field(name="魔防 M.Def", value=f"{boss_info.get('魔防', 'N/A')}\n\u200b", inline=True)
     embed.add_field(name="物理抗性 P.Res", value=f"{boss_info.get('物理抗性', 'N/A')}", inline=True)
-    embed.add_field(name="魔法抗性 M.Res", value=f"{boss_info.get('魔法抗性', 'N/A')}", inline=True)
-    embed.add_field(name="回避 Flee", value=f"{boss_info.get('迴避', 'N/A')}", inline=True)
+    embed.add_field(name="魔法抗性 M.Res", value=f"{boss_info.get('魔法抗性', 'N/A')}\n\u200b", inline=True)
+    embed.add_field(name="迴避 Flee", value=f"{boss_info.get('迴避', 'N/A')}", inline=True)
 
-    # 处理暴抗信息
+    # 處理暴抗資訊，可能為字典或其他型態
     crt_res = boss_info.get("暴抗", "N/A")
     if isinstance(crt_res, dict):
         crt_res = "\n".join([f"{k}: {v}" for k, v in crt_res.items()])
-    embed.add_field(name="暴抗 Crt.Res", value=f"{crt_res}", inline=True)
+    else:
+        crt_res = str(crt_res)
+    embed.add_field(name="暴抗 Crt.Res", value=f"{crt_res}\n\u200b", inline=True)
 
-    # 额外字段
-    optional_fields = ["控制", "破位效果", "階段", "傷害上限 (MaxHP)"]
-    for field in optional_fields:
-        if boss_info.get(field):
-            embed.add_field(name=field, value=boss_info[field], inline=False)
+    inertia_text = (
+        f"物理: {boss_info.get('物理-慣性變動', 'N/A')}　"
+        f"魔法: {boss_info.get('魔法-慣性變動', 'N/A')}　"
+        f"普攻: {boss_info.get('普攻-慣性變動', 'N/A')}\n\u200b"
+    )
+    embed.add_field(name="慣性變動率 Proration", value=inertia_text, inline=False)
 
-    # 设置图片
+    # 使用自訂的顯示名稱
+
+    if boss_info.get("控制"):
+        embed.add_field(name="⋆˙ 控制 FTS ˙⋆", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
+    if boss_info.get("破位效果"):
+        embed.add_field(name="⋆˙ 破位效果 Break ˙⋆", value=f"{boss_info.get('破位效果')}\n\u200b", inline=False)
+    if boss_info.get("階段"):
+        embed.add_field(name="⋆˙ 階段/模式 Phase ˙⋆", value=f"{boss_info.get('階段')}\n\u200b", inline=False)
+    if boss_info.get("傷害上限 (MaxHP)"):
+        embed.add_field(name="⋆˙ 傷害上限 (MaxHP) ˙⋆", value=f"{boss_info.get('傷害上限 (MaxHP)')}\n\u200b", inline=False)
+
+    # 設置圖片
     if boss_info.get("圖片"):
         embed.set_image(url=boss_info["圖片"])
 
+    # 主線王和活動王要顯示難度倍率
+    if boss_type in ("main", "event"):
+        embed.set_footer(text="✧*。 難度倍率 Difficulty 。*✧\n"
+                           "EASY = 0.1 x 防禦 | 迴避\n"
+                           "NORMAL = 1 x 防禦 | 迴避\n"
+                           "HARD = 2 x 防禦 | 迴避\n"
+                           "NIGHTMARE = 4 x 防禦 | 迴避\n"
+                           "ULTIMATE = 6 x 防禦 | 迴避")
+
     return embed
 
-# 处理 >boss 指令
+# ================= 下拉選單相關類 =================
+class BossSelect(discord.ui.Select):
+    def __init__(self, options):
+        super().__init__(placeholder="請選擇一個 Boss", min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        selected_value = self.values[0]
+        boss_info, boss_type = self.view.boss_mapping[selected_value]
+        embed = create_boss_embed(boss_info, boss_type)
+        # 更新訊息，移除下拉選單
+        await interaction.response.edit_message(content=None, embed=embed, view=None)
+
+class BossSelectView(discord.ui.View):
+    def __init__(self, boss_results):
+        super().__init__(timeout=60)
+        self.boss_mapping = {}
+        options = []
+        for idx, (boss, boss_type) in enumerate(boss_results):
+            value = str(idx)
+            self.boss_mapping[value] = (boss, boss_type)
+            label = boss.get("名稱", "未知")
+            # 取得該類型的友好名稱
+            friendly_type = boss_type_mapping.get(boss_type, {"label": boss_type.upper()})["label"]
+            description = f"章節 Phase: {boss.get('章節', '未知')}"
+            options.append(discord.SelectOption(label=label, description=description, value=value))
+        self.add_item(BossSelect(options))
+
+class BossTypeSelect(discord.ui.Select):
+    def __init__(self, options):
+        super().__init__(placeholder="請選擇 Boss 類型", min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        selected_type = self.values[0]
+        boss_list = []
+        data = boss_data_sets.get(selected_type, {})
+        for boss in data.values():
+            boss_list.append((boss, selected_type))
+        if not boss_list:
+            await interaction.response.send_message("該類型沒有敵人。", ephemeral=True)
+            return
+        friendly_label = boss_type_mapping.get(selected_type, {"label": selected_type.upper()})["label"]
+        view = BossSelectView(boss_list)
+        await interaction.response.edit_message(content=f" {friendly_label} 類型的 Boss:", view=view)
+
+class BossTypeSelectView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=60)
+        options = []
+        for boss_type in boss_data_sets.keys():
+            mapping = boss_type_mapping.get(boss_type, {"label": boss_type.upper(), "description": f"選擇 {boss_type.upper()} 類型的敵人"})
+            options.append(discord.SelectOption(label=mapping["label"], value=boss_type, description=mapping["description"]))
+        self.add_item(BossTypeSelect(options))
+# ====================================================
+
+# 處理 >boss 指令
 @bot.command()
 async def boss(ctx, *, query: str = None):
-    """查询 Boss 相关信息。"""
+    """查詢 Boss 相關資訊。"""
     if not query:
-        await ctx.send("❌ 请输入 Boss 名称或别名！")
+        # 當無輸入時，顯示所有類型敵人的下拉選單
+        view = BossTypeSelectView()
+        await ctx.send("請選擇 Boss 類型：", view=view)
         return
 
     result = find_boss(query)
     if not result:
-        await ctx.send("❌ 未找到该 Boss，请检查名称是否正确！")
+        await ctx.send("❌ 未找到該 Boss，請檢查名稱是否正確！")
         return
 
-    boss_info, boss_type = result
-    embed = create_boss_embed(boss_info, boss_type)
-    await ctx.send(embed=embed)
+    if isinstance(result, list):
+        view = BossSelectView(result)
+        await ctx.send("該關鍵詞的 Boss:", view=view)
+    else:
+        boss_info, boss_type = result
+        embed = create_boss_embed(boss_info, boss_type)
+        await ctx.send(embed=embed)
 
-# 机器人启动日志
+# 機器人啟動日誌
 @bot.event
 async def on_ready():
-    logging.info(f"✅ 已登录为 {bot.user}")
+    logging.info(f"✅ 已登入為 {bot.user}")
 
-# 运行机器人
+# 運行機器人
 bot.run(TOKEN)
