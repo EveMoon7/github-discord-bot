@@ -12,7 +12,7 @@ data = {
             {
                 "level": "Lv 143",
                 "name": "天使泡泡（水）",
-                "recommended": True,
+                "recommended": False,
                 "location": "眾神之殿·第2区",
                 "categories": "金屬、布料、貝殼I",
                 "drops": "神性石塊、裂掉的光圈、神秘光布\n\u200b"
@@ -49,7 +49,7 @@ data = {
             {
                 "level": "Lv 217",
                 "name": "拉偷（地）",
-                "recommended": True,
+                "recommended": False,
                 "location": "試煉的坑道",
                 "categories": "布料、金屬、魔素",
                 "drops": "盜坑的布、美麗的礦物、暗淡的發光眼球\n\u200b"
@@ -70,7 +70,7 @@ data = {
             {
                 "level": "Lv 216",
                 "name": "酷龍（火）",
-                "recommended": True,
+                "recommended": False,
                 "location": "試煉的坑道",
                 "categories": "獸品、藥品",
                 "drops": "很燙的尾巴、很燙的角、灼熱的液體\n\u200b"
@@ -91,7 +91,7 @@ data = {
             {
                 "level": "Lv 151",
                 "name": "常春藤妖（地）",
-                "recommended": True,
+                "recommended": False,
                 "location": "暗龍神殿·中層",
                 "categories": "木材、藥品",
                 "drops": "常春藤的蔓鬚、健壯粗枝、馬鈴薯\n\u200b"
@@ -104,7 +104,7 @@ data = {
             {
                 "level": "Lv 110",
                 "name": "葡萄果凍（暗）",
-                "recommended": True,
+                "recommended": False,
                 "location": "阿爾提玫亞地下水道·東南",
                 "categories": "藥品、金屬",
                 "drops": "酸甜液體、紅紫色果凍、阿爾堤玫亞石材\n\u200b"
@@ -127,7 +127,7 @@ data = {
                 "name": "天使泡泡（水）",
                 "recommended": False,
                 "location": "眾神之殿·第2区",
-                "categories": "貝殼I(多)、金屬(多)、布料(少)",
+                "categories": "貝殼I、金屬(多)、布料(少)",
                 "drops": "貝殼I、神性石塊、裂掉的光圈、神秘光布\n\u200b"
             },
             {
@@ -143,7 +143,7 @@ data = {
                 "name": "冰狼（水）",
                 "recommended": False,
                 "location": "寒氣迴廊",
-                "categories": "貝殼II(多)、布料、獸品",
+                "categories": "貝殼II、布料、獸品",
                 "drops": "貝殼II、冰凍的羽翼、冰凍的鉤爪\n\u200b"
             },
             {
@@ -151,7 +151,7 @@ data = {
                 "name": "鮟鱇（水）",
                 "recommended": False,
                 "location": "廢棄區·第一區",
-                "categories": "貝殼II(多)、布料、獸品",
+                "categories": "貝殼II、布料、獸品",
                 "drops": "貝殼II、有彈性的皮、鮟鱇魚柳、高級鮟鱇魚肝\n\u200b"
             },
             {
@@ -159,7 +159,7 @@ data = {
                 "name": "魯尼牙魚（水）",
                 "recommended": False,
                 "location": "廢棄區·第三區",
-                "categories": "貝殼II(多)、獸品、布料、藥品",
+                "categories": "貝殼II、獸品、布料、藥品",
                 "drops": "貝殼II、魚的毒牙、銳利的胸鰭、美味魚肉\n\u200b"
             }     
         ]       
