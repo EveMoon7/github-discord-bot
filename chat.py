@@ -55,7 +55,7 @@ async def 芙蕊99(ctx):
 
 @bot.command()
 async def 月醬99(ctx):
-    await ctx.send("還不快感動的流淚請問我的腳")     
+    await ctx.send("還不快感動的流淚舔我的腳")     
 
 @bot.command()
 async def 天城99(ctx):
