@@ -6,6 +6,8 @@ import os
 from discord.ext import commands
 from dotenv import load_dotenv
 
+
+
 # 載入 .env 檔案
 load_dotenv()
 
@@ -19,7 +21,7 @@ if not TOKEN:
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix=">", intents=intents, case_insensitive=True)
+bot = commands.Bot(command_prefix="!", intents=intents, case_insensitive=True)
 
 def normalize(text: str) -> str:
     return unicodedata.normalize("NFKC", text).lower().strip()
@@ -75,10 +77,18 @@ def find_boss(query: str):
     return None
 
 def create_boss_embed(boss_info, boss_type):
+    # 取得原始章節字串，預設為 "未知"
+    raw_phase = boss_info.get("章節", "未知")
+    # 如果章節字串中包含 "-"，則只取 "-" 前面的部分
+    if "-" in raw_phase:
+        phase = raw_phase.split("-")[0].strip()
+    else:
+        phase = raw_phase
+
     friendly = boss_type_mapping.get(boss_type, {"label": boss_type.upper()})
     embed = discord.Embed(
         title=f"✧*。{friendly['label']} Boss: {boss_info.get('名稱', '未知')} 。*✧",
-        description=f"❀ 章節 Phase: {boss_info.get('章節', '未知')} ❀\n❀ 地點: {boss_info.get('地點', '未知')} ❀",
+        description=f"❀ 章節 Phase: {phase} ❀\n❀ 地點: {boss_info.get('地點', '未知')} ❀",
         color=discord.Color.magenta()
     )
     embed.add_field(
@@ -110,6 +120,8 @@ def create_boss_embed(boss_info, boss_type):
         embed.add_field(name="⋆˙ 階段/模式 Phase ˙⋆", value=f"{boss_info.get('階段')}\n\u200b", inline=False)  
     if boss_info.get("控制"):
         embed.add_field(name="⋆˙ 控制 FTS ˙⋆", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
+    if boss_info.get("異常"):
+        embed.add_field(name="⋆˙ 異常狀態 Status Ailments ˙⋆", value=f"{boss_info.get('異常')}\n\u200b", inline=False)    
     if boss_info.get("破位效果"):
         embed.add_field(name="⋆˙ 破位效果 Break ˙⋆", value=f"{boss_info.get('破位效果')}\n\u200b", inline=False)
     if boss_info.get("傷害上限 (MaxHP)"):
@@ -128,6 +140,7 @@ def create_boss_embed(boss_info, boss_type):
                            "NIGHTMARE = 4 x 防禦 | 迴避\n"
                            "ULTIMATE = 6 x 防禦 | 迴避")
     return embed
+
 
 # ===== 限制只有原指令使用者能操作互動選單 =====
 
