@@ -7,7 +7,6 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 
-
 # 載入 .env 檔案
 load_dotenv()
 
