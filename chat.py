@@ -1,8 +1,8 @@
-import os
 import discord
 from discord.ext import commands
+import os
 
-TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True  # 啟用讀取訊息的權限
@@ -55,7 +55,7 @@ async def 芙蕊99(ctx):
 
 @bot.command()
 async def 月醬99(ctx):
-    await ctx.send("還不快感動的流淚舔我的腳")     
+    await ctx.send("還不快感動的流淚請問我的腳")     
 
 @bot.command()
 async def 天城99(ctx):
@@ -103,7 +103,7 @@ async def 梨衣(ctx):
 
 @bot.command()
 async def FTS是什麼(ctx):
-    await ctx.send("Flinch膽怯,Tumble翻覆,Stun暈眩")
+    await ctx.send("Flinch膽怯,Tumble翻覆,Stun昏厥")
 
 @bot.command()
 async def PH是什麼(ctx):

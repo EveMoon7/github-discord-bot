@@ -1,10 +1,9 @@
-import os
 import discord
 from discord.ext import commands
+import os
 
 # 請記得替換成你自己的 Bot Token，且避免硬編碼 Token（建議使用環境變數）
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-
 # 定義粉紅色
 PINK = discord.Color.from_rgb(255, 182, 193)
 
@@ -439,7 +438,7 @@ class CategoryView(RestrictedView):
 # ---------------------------
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix=">", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
