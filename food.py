@@ -2,8 +2,8 @@ import os
 import discord
 from discord.ext import commands
 
-# 請記得替換成你自己的 Bot Token
-TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+# 請記得替換成你自己的 Bot Token，且避免硬編碼 Token（建議使用環境變數）
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 # 定義粉紅色
 PINK = discord.Color.from_rgb(255, 182, 193)
@@ -342,30 +342,42 @@ subgroup_mapping = {
     "group_element": [(key, data[key]) for key in group_element if key in data],
 }
 
-# 建立主選單用的列表：
-# 先取出不屬於群組的項目（保留原定順序）
+# 建立主選單用的列表：先取出不屬於群組的項目（保留原定順序）
 main_categories = []
 for key, value in data.items():
     if key in group_stats or key in group_element:
         continue
     main_categories.append((key, value))
 
-# 找出「加仇」在主選單中的位置（此項的名稱含有 "仇恨"）
+# 找出「加仇」在主選單中的位置
 insert_index = None
 for i, (key, _) in enumerate(main_categories):
-    if key == "加仇":  # 「加仇」的名稱為 "仇恨 (+Aggro)"
+    if key == "加仇":
         insert_index = i
         break
 if insert_index is None:
     insert_index = len(main_categories)
-    
-# 將群組選項插入到「加仇」之後，
-# 並調整順序：先加入「對屬傷害增加 (DTE)」，再加入「能力值 (Stat)」
+
+# 將群組選項插入到「加仇」之後，先加入「對屬傷害增加 (DTE)」，再加入「能力值 (Stat)」
 group_options = [
     ("group_element", {"name": "對屬傷害增加 (DTE)", "is_group": True}),
     ("group_ability", {"name": "能力值 (Stat)", "is_group": True}),
 ]
 main_categories = main_categories[:insert_index+1] + group_options + main_categories[insert_index+1:]
+
+# ---------------------------
+# 定義限制使用者的互動 View
+# ---------------------------
+class RestrictedView(discord.ui.View):
+    def __init__(self, author: discord.User, timeout: float = None):
+        super().__init__(timeout=timeout)
+        self.author = author
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user.id != self.author.id:
+            await interaction.response.send_message("要使用該指令需要自己>food喔~", ephemeral=True)
+            return False
+        return True
 
 # ---------------------------
 # 定義互動元件：下拉選單與 View
@@ -374,7 +386,6 @@ class CategorySelect(discord.ui.Select):
     def __init__(self, categories):
         options = []
         for cat_key, cat_data in categories:
-            # 所有選項的描述均留空
             options.append(discord.SelectOption(
                 label=cat_data["name"],
                 description="",
@@ -390,31 +401,31 @@ class CategorySelect(discord.ui.Select):
             await interaction.response.send_message("找不到對應的料理組別。", ephemeral=True)
             return
 
-        # 若為群組選項，則發送子選單
+        # 如果為群組選項，則顯示子選單
         if cat_data.get("is_group"):
             subgroup = subgroup_mapping.get(cat_key)
             if not subgroup:
                 await interaction.response.send_message("該群組內無料理資料。", ephemeral=True)
                 return
-            new_header = f"選擇  {cat_data['name']} 料理  ："
-            new_view = CategoryView(subgroup, header=new_header)
+            new_header = f"選擇 {cat_data['name']} 料理 ："
+            new_view = CategoryView(subgroup, header=new_header, author=self.view.author)
             await interaction.response.edit_message(content=new_header, embed=None, view=new_view)
         else:
-            # 否則直接顯示料理資料
+            # 顯示料理資料
             embed = discord.Embed(title=f"{cat_data['name']} 料理列表", color=PINK)
             dish_list = ""
             for dish in cat_data["items"]:
-                # 將 Level 改為 Lv
                 level = f"Lv {dish['level']}" if dish.get("level") else ""
                 dish_list += f"ID: {dish['id']} | {dish['name']} {level}\n"
             embed.description = dish_list if dish_list else "無資料"
             await interaction.response.edit_message(content="請享用！", embed=embed, view=None)
 
-class CategoryView(discord.ui.View):
-    def __init__(self, categories, header="請選擇你要查詢的料理組別：", timeout=60):
-        super().__init__(timeout=timeout)
+class CategoryView(RestrictedView):
+    def __init__(self, categories, header="請選擇你要查詢的料理組別：", author: discord.User = None, timeout: float = 60):
+        # 若未傳入 author 則預設為 None（請務必傳入觸發指令的使用者）
+        super().__init__(author, timeout=timeout)
         self.header = header
-        # 每個 Select 最多 25 項，超過時拆分為多個 Select
+        # 若選項數量超過 25 則拆分多個下拉選單
         for i in range(0, len(categories), 25):
             chunk = categories[i : i + 25]
             self.add_item(CategorySelect(chunk))
@@ -424,7 +435,7 @@ class CategoryView(discord.ui.View):
             item.disabled = True
 
 # ---------------------------
-# 建立機器人（設定指令前綴為 ">"）
+# 建立機器人（設定指令前綴為 "!"）
 # ---------------------------
 intents = discord.Intents.default()
 intents.message_content = True
@@ -437,8 +448,8 @@ async def on_ready():
 @bot.command(aliases=["addr", "food", "料理", "料理地址"])
 async def query(ctx, *, dish: str = None):
     """
-    若僅輸入指令（例如：>food），則顯示主下拉選單；
-    若輸入料理名稱（例如：>food MP上限），則直接搜尋並顯示料理資料。
+    若僅輸入指令（例如：!food），則顯示主下拉選單；
+    若輸入料理名稱（例如：!food MP上限），則直接搜尋並顯示料理資料。
     """
     if dish:
         # 搜尋名稱中包含參數字串（不分大小寫）的料理組別
@@ -451,7 +462,6 @@ async def query(ctx, *, dish: str = None):
             embed = discord.Embed(title=f"{found['name']} 料理列表", color=PINK)
             dish_list = ""
             for item in found["items"]:
-                # 將 Level 改為 Lv
                 level = f"Lv {item['level']}" if item.get("level") else ""
                 dish_list += f"ID: {item['id']} | {item['name']} {level}\n"
             embed.description = dish_list if dish_list else "無資料"
@@ -459,9 +469,9 @@ async def query(ctx, *, dish: str = None):
         else:
             await ctx.send(f"料理名稱內沒有 **{dish}** 的料理，好笨笨喔。")
     else:
-        # 無參數則顯示主下拉選單
+        # 若無參數，僅顯示主下拉選單，並綁定原指令使用者
         header = "主人大人，你要吃什麽~（貼近問"
-        view = CategoryView(main_categories, header=header)
+        view = CategoryView(main_categories, header=header, author=ctx.author)
         await ctx.send(header, view=view)
 
 bot.run(TOKEN)
