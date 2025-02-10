@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()  # 載入 .env 中的環境變數
-TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+TOKEN = os.getenv"DISCORD_BOT_TOKEN"
 
 intents = discord.Intents.default()
 intents.message_content = True  # 啟用訊息內容權限
@@ -26,12 +26,16 @@ async def 邀請(ctx):
         color=0xffa6c9  # 可愛少女粉
     )
     
-    invite_url = ("https://discord.com/oauth2/authorize?"
-                  "client_id=1323232531713359994&"
-                  "response_type=code&"
-                  "redirect_uri=https%3A%2F%2Fdiscordapp.com%2Foauth2%2Fauthorize%3F%26client_id%3D1323232531713359994&"
-                  "integration_type=0&"
-                  "scope=guilds.members.read+applications.commands")
+    # 使用新的邀請鏈接
+    invite_url = (
+        "https://discord.com/oauth2/authorize?"
+        "client_id=1323232531713359994&"
+        "permissions=2687887424&"
+        "response_type=code&"
+        "redirect_uri=https%3A%2F%2Fdiscordapp.com%2Foauth2%2Fauthorize%3F%26client_id%3D1323232531713359994&"
+        "integration_type=0&"
+        "scope=bot+applications.commands+messages.read"
+    )
     
     embed.add_field(name="📌 邀請連結", value=f"[🌟 點我召喚 女僕月醬 ✨]({invite_url})", inline=False)
     embed.set_footer(text="女僕月醬等待主人召喚喔 ~ 💖")

@@ -3,9 +3,9 @@ import discord
 import unicodedata
 import logging
 import os
+import sys
 from discord.ext import commands
 from dotenv import load_dotenv
-
 
 # 載入 .env 檔案
 load_dotenv()
@@ -75,19 +75,30 @@ def find_boss(query: str):
             return ambiguous
     return None
 
-def create_boss_embed(boss_info, boss_type):
-    # 取得原始章節字串，預設為 "未知"
+def get_phase(boss_info):
+    """
+    取得 boss 的章節（若為字串且包含 "-"，只取 "-" 前面的部分）
+    """
     raw_phase = boss_info.get("章節", "未知")
-    # 如果章節字串中包含 "-"，則只取 "-" 前面的部分
-    if "-" in raw_phase:
-        phase = raw_phase.split("-")[0].strip()
+    raw_phase_str = str(raw_phase).strip()
+    if "-" in raw_phase_str:
+        return raw_phase_str.split("-")[0].strip()
     else:
-        phase = raw_phase
+        return raw_phase_str
+
+def create_boss_embed(boss_info, boss_type):
+    # 取得原始章節字串，若包含 "-" 只取前半部（用於回覆訊息）
+    raw_phase = boss_info.get("章節", "未知")
+    raw_phase_str = str(raw_phase).strip()
+    if "-" in raw_phase_str:
+        phase = raw_phase_str.split("-")[0].strip()
+    else:
+        phase = raw_phase_str
 
     friendly = boss_type_mapping.get(boss_type, {"label": boss_type.upper()})
     embed = discord.Embed(
         title=f"✧*。{friendly['label']} Boss: {boss_info.get('名稱', '未知')} 。*✧",
-        description=f"❀ 章節 Phase: {phase} ❀\n❀ 地點: {boss_info.get('地點', '未知')} ❀",
+        description=f"❀ 章節 Chapter: {phase} ❀\n❀ 地點: {boss_info.get('地點', '未知')} ❀",
         color=discord.Color.magenta()
     )
     embed.add_field(
@@ -116,17 +127,17 @@ def create_boss_embed(boss_info, boss_type):
     embed.add_field(name="慣性變動率 Proration", value=inertia_text, inline=False)
 
     if boss_info.get("階段"):
-        embed.add_field(name="⋆˙ 階段/模式 Phase ˙⋆", value=f"{boss_info.get('階段')}\n\u200b", inline=False)  
+        embed.add_field(name="⋆˙ 階段/模式", value=f"{boss_info.get('階段')}\n\u200b", inline=False)
     if boss_info.get("控制"):
-        embed.add_field(name="⋆˙ 控制 FTS ˙⋆", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 控制 FTS", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
     if boss_info.get("異常"):
-        embed.add_field(name="⋆˙ 異常狀態 Status Ailments ˙⋆", value=f"{boss_info.get('異常')}\n\u200b", inline=False)    
+        embed.add_field(name="⋆˙ 異常狀態", value=f"{boss_info.get('異常')}\n\u200b", inline=False)
     if boss_info.get("破位效果"):
-        embed.add_field(name="⋆˙ 破位效果 Break ˙⋆", value=f"{boss_info.get('破位效果')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 破位效果", value=f"{boss_info.get('破位效果')}\n\u200b", inline=False)
     if boss_info.get("傷害上限 (MaxHP)"):
-        embed.add_field(name="⋆˙ 傷害上限 (MaxHP) ˙⋆", value=f"{boss_info.get('傷害上限 (MaxHP)')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 傷害上限", value=f"{boss_info.get('傷害上限 (MaxHP)')}\n\u200b", inline=False)
     if boss_info.get("注意"):
-        embed.add_field(name="⋆˙ 注意 Notice ˙⋆", value=f"{boss_info.get('注意')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 注意", value=f"{boss_info.get('注意')}\n\u200b", inline=False)
 
     if boss_info.get("圖片"):
         embed.set_image(url=boss_info["圖片"])
@@ -140,7 +151,6 @@ def create_boss_embed(boss_info, boss_type):
                            "ULTIMATE = 6 x 防禦 | 迴避")
     return embed
 
-
 # ===== 限制只有原指令使用者能操作互動選單 =====
 
 class RestrictedView(discord.ui.View):
@@ -149,13 +159,10 @@ class RestrictedView(discord.ui.View):
         self.author = author
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        # 如果互動使用者不是指令發起者，回覆提示訊息並拒絕操作
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("要使用該指令需要自己>boss喔~", ephemeral=True)
             return False
         return True
-
-# ===== 下拉選單相關類 =====
 
 class BackButton(discord.ui.Button):
     def __init__(self, author: discord.User):
@@ -178,17 +185,72 @@ class BossSelect(discord.ui.Select):
 
 class BossSelectView(RestrictedView):
     def __init__(self, author: discord.User, boss_results):
-        super().__init__(author, timeout=600)
+        super().__init__(author, timeout=None)
         self.boss_mapping = {}
         options = []
         for idx, (boss, boss_type) in enumerate(boss_results):
             value = str(idx)
             self.boss_mapping[value] = (boss, boss_type)
             label = boss.get("名稱", "未知")
-            friendly_type = boss_type_mapping.get(boss_type, {"label": boss_type.upper()})["label"]
-            description = f"章節 Phase: {boss.get('章節', '未知')}"
+            # 調整描述：顯示 "章節 Chapter (章節)"
+            description = f"章節 Chapter {boss.get('章節', '未知')}"
             options.append(discord.SelectOption(label=label, description=description, value=value))
         self.add_item(BossSelect(options))
+        self.add_item(BackButton(author))
+
+# 新增：主線王的章節子選單
+class MainPhaseSelect(discord.ui.Select):
+    def __init__(self, options, author: discord.User, main_boss_data: dict):
+        # placeholder 改為「選擇章節 Select Chapter」
+        super().__init__(placeholder="選擇章節 Select Chapter", min_values=1, max_values=1, options=options)
+        self.author = author
+        self.main_boss_data = main_boss_data
+
+    async def callback(self, interaction: discord.Interaction):
+        selected_phase = self.values[0]
+        filtered = []
+        for boss in self.main_boss_data.values():
+            if get_phase(boss) == selected_phase:
+                filtered.append((boss, "main"))
+        if not filtered:
+            await interaction.response.send_message("該章節沒有敵人。", ephemeral=True)
+            return
+        view = BossSelectView(self.author, filtered)
+        # 回覆訊息保持為 "主線王 Main Quest Boss - 章節 Chapter (章節)"
+        await interaction.response.edit_message(content=f"主線王 Main Quest Boss - 章節 Chapter {selected_phase}", view=view)
+
+class MainPhaseSelectView(RestrictedView):
+    def __init__(self, author: discord.User):
+        super().__init__(author, timeout=None)
+        main_boss = boss_data_sets["main"]
+        phase_to_bosses = {}
+        for boss in main_boss.values():
+            phase = get_phase(boss)
+            phase_to_bosses.setdefault(phase, []).append(boss)
+        def sort_key(p):
+            try:
+                return float(p)
+            except:
+                return p
+        sorted_phases = sorted(phase_to_bosses.keys(), key=sort_key, reverse=True)
+        options = []
+        for phase in sorted_phases:
+            boss_list = phase_to_bosses[phase]
+            # 將每個 boss 的中文別名（取 "別名" 欄位第一項）串聯，以逗號分隔
+            alias_list = []
+            for boss in boss_list:
+                aliases = boss.get("別名", [])
+                if aliases:
+                    alias_list.append(aliases[0])
+                else:
+                    alias_list.append(boss.get("名稱", "未知"))
+            desc = ", ".join(alias_list)
+            options.append(discord.SelectOption(
+                label=f"章節 Chapter: {phase}",
+                value=phase,
+                description=desc
+            ))
+        self.add_item(MainPhaseSelect(options, author, main_boss))
         self.add_item(BackButton(author))
 
 class BossTypeSelect(discord.ui.Select):
@@ -197,16 +259,20 @@ class BossTypeSelect(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         selected_type = self.values[0]
-        boss_list = []
-        data = boss_data_sets.get(selected_type, {})
-        for boss in data.values():
-            boss_list.append((boss, selected_type))
-        if not boss_list:
-            await interaction.response.send_message("該類型沒有敵人。", ephemeral=True)
-            return
-        friendly_label = boss_type_mapping.get(selected_type, {"label": selected_type.upper()})["label"]
-        view = BossSelectView(interaction.user, boss_list)
-        await interaction.response.edit_message(content=f"{friendly_label} 類型的 Boss:", view=view)
+        if selected_type == "main":
+            view = MainPhaseSelectView(interaction.user)
+            await interaction.response.edit_message(content="請選擇主線王的章節：", view=view)
+        else:
+            boss_list = []
+            data = boss_data_sets.get(selected_type, {})
+            for boss in data.values():
+                boss_list.append((boss, selected_type))
+            if not boss_list:
+                await interaction.response.send_message("該類型沒有敵人。", ephemeral=True)
+                return
+            friendly_label = boss_type_mapping.get(selected_type, {"label": selected_type.upper()})["label"]
+            view = BossSelectView(interaction.user, boss_list)
+            await interaction.response.edit_message(content=f"{friendly_label} 類型的 Boss:", view=view)
 
 class BossTypeSelectView(RestrictedView):
     def __init__(self, author: discord.User):
@@ -226,7 +292,6 @@ class BossTypeSelectView(RestrictedView):
 async def boss(ctx, *, query: str = None):
     """查詢 Boss 相關資訊。"""
     if not query:
-        # 將視圖綁定到指令發起者
         view = BossTypeSelectView(ctx.author)
         await ctx.send("♡ 祝主人凱旋而歸 ~ ", view=view)
         return
