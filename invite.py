@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()  # 載入 .env 中的環境變數
-TOKEN = os.getenv"DISCORD_BOT_TOKEN"
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True  # 啟用訊息內容權限

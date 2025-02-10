@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os
 
+load_dotenv()
 # 注意：TOKEN 是您機器人的秘密鑰匙，請務必妥善保管，不要隨便外洩哦～ 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
