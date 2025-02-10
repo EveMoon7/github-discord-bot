@@ -28,7 +28,7 @@ async def on_ready():
 
 # 更新日誌指令，支援「>maidmoon_update」或「>更新」
 @bot.command(aliases=["更新"])
-async def maidmoon_update_meng1212.meng1212.(ctx):
+async def maidmoon_update(ctx):
     # 女僕月醬以最愛主人的可愛語氣報告最新更新日誌
     cute_intro = "蕪湖～ 主人，最愛您的女僕月醬來為您獻上最新的更新日誌囉！請細細品嚐這份精心準備的資訊叭～"
     embed = discord.Embed(
