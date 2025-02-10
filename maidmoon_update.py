@@ -3,7 +3,7 @@ from discord.ext import commands
 import os
 
 # 注意：TOKEN 是您機器人的秘密鑰匙，請務必妥善保管，不要隨便外洩哦～ 
-TOKEN = os.getenv"DISCORD_BOT_TOKEN"
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 # 更新內容由主人提供，接下來女僕月醬會用她那超級可愛又有趣的口吻為您獻上最新資訊～
 update_content = """
