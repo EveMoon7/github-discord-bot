@@ -127,17 +127,17 @@ def create_boss_embed(boss_info, boss_type):
     embed.add_field(name="慣性變動率 Proration", value=inertia_text, inline=False)
 
     if boss_info.get("階段"):
-        embed.add_field(name="⋆˙ 階段/模式", value=f"{boss_info.get('階段')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 階段/模式 ˙⋆", value=f"{boss_info.get('階段')}\n\u200b", inline=False)
     if boss_info.get("控制"):
-        embed.add_field(name="⋆˙ 控制 FTS", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 控制 FTS ˙⋆", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
     if boss_info.get("異常"):
-        embed.add_field(name="⋆˙ 異常狀態", value=f"{boss_info.get('異常')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 異常狀態 ˙⋆", value=f"{boss_info.get('異常')}\n\u200b", inline=False)
     if boss_info.get("破位效果"):
-        embed.add_field(name="⋆˙ 破位效果", value=f"{boss_info.get('破位效果')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 破位效果 ˙⋆", value=f"{boss_info.get('破位效果')}\n\u200b", inline=False)
     if boss_info.get("傷害上限 (MaxHP)"):
-        embed.add_field(name="⋆˙ 傷害上限", value=f"{boss_info.get('傷害上限 (MaxHP)')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 傷害上限 ˙⋆", value=f"{boss_info.get('傷害上限 (MaxHP)')}\n\u200b", inline=False)
     if boss_info.get("注意"):
-        embed.add_field(name="⋆˙ 注意", value=f"{boss_info.get('注意')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 注意 ˙⋆", value=f"{boss_info.get('注意')}\n\u200b", inline=False)
 
     if boss_info.get("圖片"):
         embed.set_image(url=boss_info["圖片"])
@@ -217,7 +217,7 @@ class MainPhaseSelect(discord.ui.Select):
             return
         view = BossSelectView(self.author, filtered)
         # 回覆訊息保持為 "主線王 Main Quest Boss - 章節 Chapter (章節)"
-        await interaction.response.edit_message(content=f"主線王 Main Quest Boss - 章節 Chapter {selected_phase}", view=view)
+        await interaction.response.edit_message(content=f"章節 Chapter {selected_phase} | 是這裡嗎~(翻地圖", view=view)
 
 class MainPhaseSelectView(RestrictedView):
     def __init__(self, author: discord.User):
@@ -261,7 +261,7 @@ class BossTypeSelect(discord.ui.Select):
         selected_type = self.values[0]
         if selected_type == "main":
             view = MainPhaseSelectView(interaction.user)
-            await interaction.response.edit_message(content="請選擇主線王的章節：", view=view)
+            await interaction.response.edit_message(content="女僕雷達尋找中 ~", view=view)
         else:
             boss_list = []
             data = boss_data_sets.get(selected_type, {})
