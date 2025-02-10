@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
 import os
 from dotenv import load_dotenv  # 修正：確保 dotenv 被導入
 
@@ -28,6 +29,10 @@ async def on_ready():
 # 更新日誌指令
 @bot.command(aliases=["更新"])
 async def maidmoon_update(ctx):
+<<<<<<< HEAD
+=======
+    # 女僕月醬以最愛主人的可愛語氣報告最新更新日誌
+>>>>>>> 16722772134404663ed4b2d9e95a64a008614b2b
     cute_intro = "蕪湖～ 主人，最愛您的女僕月醬來為您獻上最新的更新日誌囉！請細細品嚐這份精心準備的資訊叭～"
     embed = discord.Embed(
         title="【女僕月醬】更新日誌",
