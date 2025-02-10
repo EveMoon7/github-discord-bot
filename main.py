@@ -22,7 +22,7 @@ def read_stderr(script, process):
 
 def main():
     # 要啟動的腳本列表
-    scripts = ["chat.py", "boss.py", "food.py", "material.py", "invite.py","maidmoon_update.py"]
+    scripts = ["chat.py", "boss.py", "food.py", "material.py", "invite.py","update.py"]
     processes = []
     threads = []
 
