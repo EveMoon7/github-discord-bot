@@ -29,7 +29,6 @@ async def on_ready():
 # 更新日誌指令
 @bot.command(aliases=["更新"])
 async def maidmoon_update(ctx):
-<<<<<<< HEAD
 =======
     # 女僕月醬以最愛主人的可愛語氣報告最新更新日誌
 >>>>>>> 16722772134404663ed4b2d9e95a64a008614b2b
