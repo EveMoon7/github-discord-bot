@@ -7,7 +7,7 @@ TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 intents = discord.Intents.default()
 intents.message_content = True  # 啟用讀取訊息的權限
 
-bot = commands.Bot(command_prefix=">", intents=intents)
+bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():

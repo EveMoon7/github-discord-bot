@@ -1,10 +1,7 @@
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
 import os
-from dotenv import load_dotenv  # 修正：確保 dotenv 被導入
 
-load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 # 更新內容
@@ -21,7 +18,7 @@ update_content = """
 # 設定機器人
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix=">", intents=intents)
+bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():

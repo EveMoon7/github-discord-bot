@@ -1,9 +1,8 @@
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
+
 import os
 
-load_dotenv()  # 載入 .env 中的環境變數
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 intents = discord.Intents.default()
@@ -11,7 +10,7 @@ intents.message_content = True  # 啟用訊息內容權限
 intents.guilds = True
 intents.members = True
 
-bot = commands.Bot(command_prefix=">", intents=intents)
+bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
