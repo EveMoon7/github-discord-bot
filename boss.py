@@ -6,6 +6,8 @@ import os
 import sys
 from discord.ext import commands
 
+# 載入 .env 檔案
+
 logging.basicConfig(level=logging.INFO)
 
 # 注意：切勿將 token 直接硬編碼在程式內，請用環境變數或 .env 檔存取！
@@ -16,7 +18,7 @@ if not TOKEN:
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix=">", intents=intents, case_insensitive=True, help_command=None)
+bot = commands.Bot(command_prefix=">", intents=intents, case_insensitive=True)
 
 def normalize(text: str) -> str:
     return unicodedata.normalize("NFKC", text).lower().strip()
@@ -116,24 +118,34 @@ def create_boss_embed(boss_info, boss_type):
     embed.add_field(name="暴抗 Crt.Res", value=f"{crt_res}\n\u200b", inline=True)
 
     inertia_text = (
-        f"物理: {boss_info.get('物理-慣性變動', 'N/A')}　"
-        f"魔法: {boss_info.get('魔法-慣性變動', 'N/A')}　"
+        f"物理: {boss_info.get('物理-慣性變動', 'N/A')}  "
+        f"魔法: {boss_info.get('魔法-慣性變動', 'N/A')}  "
         f"普攻: {boss_info.get('普攻-慣性變動', 'N/A')}\n\u200b"
     )
-    embed.add_field(name="慣性變動率 Proration", value=inertia_text, inline=False)
+    if boss_info.get("物理-慣性變動"):
+        embed.add_field(name="慣性變動率 Proration", value=inertia_text, inline=False)
 
-    if boss_info.get("階段"):
-        embed.add_field(name="⋆˙ 階段/模式 ˙⋆", value=f"{boss_info.get('階段')}\n\u200b", inline=False)
+
+    if boss_info.get("物理-慣性變動-多"):
+        embed.add_field(name="物理-慣性變動", value=f"{boss_info.get('物理-慣性變動-多')}", inline=True)
+    if boss_info.get("魔法-慣性變動-多"):
+        embed.add_field(name="魔法-慣性變動", value=f"{boss_info.get('魔法-慣性變動-多')}", inline=True)
+    if boss_info.get("普攻-慣性變動-多"):
+        embed.add_field(name="普攻-慣性變動", value=f"{boss_info.get('普攻-慣性變動-多')}\n\u200b", inline=True)
+    
+
     if boss_info.get("控制"):
         embed.add_field(name="⋆˙ 控制 FTS ˙⋆", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
+    if boss_info.get("階段"):
+        embed.add_field(name="⋆˙ 階段/模式 Phase ˙⋆", value=f"{boss_info.get('階段')}\n\u200b", inline=False)
     if boss_info.get("異常"):
-        embed.add_field(name="⋆˙ 異常狀態 ˙⋆", value=f"{boss_info.get('異常')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 異常狀態 Status Ailment ˙⋆", value=f"{boss_info.get('異常')}\n\u200b", inline=False)
     if boss_info.get("破位效果"):
-        embed.add_field(name="⋆˙ 破位效果 ˙⋆", value=f"{boss_info.get('破位效果')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 破位效果 Break Effect˙⋆", value=f"{boss_info.get('破位效果')}\n\u200b", inline=False)
     if boss_info.get("傷害上限 (MaxHP)"):
         embed.add_field(name="⋆˙ 傷害上限 ˙⋆", value=f"{boss_info.get('傷害上限 (MaxHP)')}\n\u200b", inline=False)
     if boss_info.get("注意"):
-        embed.add_field(name="⋆˙ 注意 ˙⋆", value=f"{boss_info.get('注意')}\n\u200b", inline=False)
+        embed.add_field(name="⋆˙ 注意 Notice ˙⋆", value=f"{boss_info.get('注意')}\n\u200b", inline=False)
 
     if boss_info.get("圖片"):
         embed.set_image(url=boss_info["圖片"])
