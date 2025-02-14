@@ -18,7 +18,7 @@ async def help(ctx):
         color=0xFFB6C1  # 淡粉色調，展現可愛風格
     )
     # 可替換為你喜歡的女僕圖片網址
-    embed.set_thumbnail(url="https://i.imgur.com/2MAYQyH.png")
+    embed.set_thumbnail(url="https://i.imgur.com/zZHFADa.png")
     
     embed.add_field(name=">help", value="女僕月醬的指令介紹訊息～", inline=False)
     embed.add_field(name=">update", value="女僕月醬的更新日志～", inline=False)
