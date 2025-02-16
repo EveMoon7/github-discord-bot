@@ -22,19 +22,19 @@ async def 誰是小男娘(ctx):
     await ctx.send("是千千噠喲~ 雜魚♡雜魚♡")
 
 @bot.command()
-async def 奧爾(ctx):
+async def 奧爾1(ctx):
     await ctx.send("奧爾哥哥人家好想你（（撲倒")
 
 @bot.command()
-async def 辰子(ctx):
+async def 辰子1(ctx):
     await ctx.send("嗷嗷嗷唔（（飛撲咬頭")
 
 @bot.command()
-async def 午茶(ctx):
+async def 午茶1(ctx):
     await ctx.send("矮額，雜魚木頭人（站遠遠")
 
 @bot.command()
-async def 餃子(ctx):
+async def 餃子1(ctx):
     await ctx.send("||查無此人||")  
 
 @bot.command()
@@ -74,7 +74,7 @@ async def 鼬99(ctx):
     await ctx.send("會長就是要被成員玩啊 by宇智波渣") 
 
 @bot.command()
-async def 亞亞(ctx):
+async def 亞亞1(ctx):
     await ctx.send("我裝備隨便都很貴的 by亞爾瑪")
 
 @bot.command()
@@ -82,7 +82,7 @@ async def 亞亞99(ctx):
     await ctx.send("我在看18+動畫 by亞爾瑪")    
 
 @bot.command()
-async def 千千(ctx):
+async def 千千1(ctx):
     await ctx.send("（拿起戒指，下跪抬起月醬的手")
 
 @bot.command()
@@ -98,7 +98,7 @@ async def 垃圾(ctx):
     await ctx.send("（看垃圾眼神") 
 
 @bot.command()
-async def 梨衣(ctx):
+async def 梨衣1(ctx):
     await ctx.send("不知道為什麼聽這叫聲好有感覺")
 
 @bot.command()
@@ -127,6 +127,12 @@ async def 屬性(ctx):
 
 @bot.command()
 async def 色色(ctx):
-    await ctx.send("不可以色色(bonk)")                
+    await ctx.send("不可以色色(bonk)")    
+
+@bot.command()
+async def 夜貓1(ctx):
+    await ctx.send("這就是頂流，在我們只顧著比拼時，那位早已疲於比拼的人已經趨於後位，為新血注入勇氣") 
+
+                
 
 bot.run(TOKEN)
