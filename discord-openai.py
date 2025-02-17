@@ -14,15 +14,8 @@ import numpy as np
 # ★ 新增：匯入 EasyOCR
 import easyocr
 
-# ★ 建立 EasyOCR 的 reader（指定需要辨識的語言）
-# Reader A：繁體 + 英文
-reader_tra = easyocr.Reader(['ch_tra','en'], gpu=False)
-
-# Reader B：簡體 + 英文
-reader_sim = easyocr.Reader(['ch_sim','en'], gpu=False)
-
-# Reader C：日文 + 英文
-reader_ja = easyocr.Reader(['ja','en'], gpu=False)
+# ★ 建立 EasyOCR 的 reader（同時支援繁體、簡體、日文、英文）
+reader = easyocr.Reader(['ch_tra','ch_sim','ja','en'], gpu=False)
 
 # 載入 CLIP 模型與處理器（開機時載入一次）
 clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -126,7 +119,7 @@ async def extract_direct_url_from_tenor(url: str) -> str:
     print("未找到直接圖片連結，返回原始連結")
     return url
 
-# ★ 新增：EasyOCR 文字辨識函數
+# ★ 新增：EasyOCR 文字辨識函數 (已修正為同時支援繁/簡/日/英)
 async def ocr_image_with_easyocr(attachment_url: str) -> str:
     image_bytes = await download_content(attachment_url)
     if not image_bytes:
@@ -147,8 +140,8 @@ async def ocr_image_with_easyocr(attachment_url: str) -> str:
         # EasyOCR 需要把 PIL 圖片轉成 numpy array
         img_np = np.array(image)
 
-        # 進行 OCR
-        result = reader_tra.readtext(img_np, detail=0)
+        # 進行 OCR（同時支援繁體/簡體/日文/英文）
+        result = reader.readtext(img_np, detail=0)
         recognized_text = "\n".join(result).strip()
         return recognized_text
     except Exception as e:
@@ -234,6 +227,8 @@ async def on_message(message: discord.Message):
         nickname = "奧爾哥哥"
     elif user_id == 636783046363709440:
         nickname = "姐姐大人"
+    elif user_id == 930826186840481794:
+        nickname = "后宮王"
     else:
         nickname = "主人"
 
@@ -300,7 +295,8 @@ async def on_message(message: discord.Message):
             return
         elif user_id == 636783046363709440:
             await message.channel.send("姐姐大人~（蹭懷裡")
-            return
+        elif user_id == 930826186840481794:
+            await message.channel.send("矮額，是宇智波后宮王（躲遠遠")
         else:
             await message.channel.send("主人貴安~（提裙禮")
             return
