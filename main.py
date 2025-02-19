@@ -5,11 +5,10 @@ import threading
 from discord.ext import commands
 import discord
 
-
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 # 全域字典用來存放各個腳本的錯誤訊息
 error_logs = {}
@@ -29,7 +28,7 @@ def read_stderr(script, process):
 
 def main():
     # 要啟動的腳本列表
-    scripts = ["chat.py", "boss.py", "food.py", "material.py", "invite.py", "update.py", "help.py","exp_calc.py"]
+    scripts = ["chat.py", "boss.py", "food.py", "material.py", "invite.py", "update.py", "help.py", "exp_calc.py", "discord-openai.py"]
     processes = []
     threads = []
 
@@ -50,8 +49,8 @@ def main():
         thread.start()
         threads.append(thread)
 
-    # 等待 0.5 秒讓各個子程序有時間啟動及輸出錯誤訊息
-    time.sleep(0.5)
+    # 等待 1 秒讓各個子程序有時間啟動及輸出錯誤訊息
+    time.sleep(1)
 
     success = True
     for script, proc in processes:
@@ -71,10 +70,20 @@ def main():
             print(f"---- {script} 無錯誤訊息。")
 
     if not success:
-        print("\n❌ 女僕月醬 無法登入.")
+        print("\n❌ 測試醬 無法登入.")
         sys.exit(1)
     else:
-        print("\n✅ 女僕月醬 已登入.")
+        print("\n✅ 測試醬 已登入.")
+
+    # 主程序持續運行，避免 main.py 執行完畢後退出
+    try:
+        while True:
+            time.sleep(60)
+    except KeyboardInterrupt:
+        print("Shutting down all subprocesses...")
+        for script, proc in processes:
+            proc.terminate()
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
