@@ -8,7 +8,7 @@ import discord
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
+bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 # 全域字典用來存放各個腳本的錯誤訊息
 error_logs = {}
@@ -28,7 +28,7 @@ def read_stderr(script, process):
 
 def main():
     # 要啟動的腳本列表
-    scripts = ["chat.py", "boss.py", "food.py", "material.py", "invite.py", "update.py", "help.py", "exp_calc.py", "galgame1.py", "discord-openai.py"]
+    scripts = ["chat.py", "boss.py", "food.py", "material.py", "invite.py", "update.py", "help.py", "exp_calc.py", "galgame1.py","discord-openai.py"]
     processes = []
     threads = []
 
