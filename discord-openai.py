@@ -1,3 +1,4 @@
+print("discord-openai.py 正在啟動")
 import discord
 import os
 import asyncio
