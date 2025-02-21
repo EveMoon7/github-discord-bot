@@ -2,3 +2,4 @@
 *.db-wal
 bot.log
 
+dump.sql
