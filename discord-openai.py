@@ -16,13 +16,13 @@ client = discord.Client(intents=intents)
 conn = sqlite3.connect("user_affection.db")
 cursor = conn.cursor()
 
-# 建立資料表（如果不存在）
+# 建立資料表（如果不存在），全部欄位均設為 TEXT
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS user_affection (
     user_id TEXT PRIMARY KEY,
     name TEXT,
     nickname TEXT,
-    affection INTEGER,
+    affection TEXT,
     greeting TEXT,   -- 問候語
     cognition TEXT,  -- 主要認知（由你自行輸入或後續累積訊息）
     chat TEXT        -- 聊天歷史（僅記錄對話）
@@ -98,7 +98,7 @@ async def on_message(message: discord.Message):
         cursor.execute("""
             INSERT INTO user_affection (user_id, name, nickname, affection, greeting, cognition, chat)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (new_name, new_name, new_name, 0, "", "", ""))
+        """, (new_name, new_name, new_name, "0", "", "", ""))
         conn.commit()
         await message.channel.send(f"成功建立角色：{new_name}\nuser_id={new_name}  name={new_name}  nickname={new_name}")
         return
@@ -191,7 +191,7 @@ async def on_message(message: discord.Message):
         cursor.execute("""
             INSERT INTO user_affection (user_id, name, nickname, affection, greeting, cognition, chat)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (user_id, message.author.display_name, message.author.display_name, 0, "", "", ""))
+        """, (user_id, message.author.display_name, message.author.display_name, "0", "", "", ""))
         conn.commit()
         cursor.execute("SELECT * FROM user_affection WHERE user_id = ?", (user_id,))
         row = cursor.fetchone()
@@ -257,12 +257,19 @@ async def on_message(message: discord.Message):
 
     print(f"收到訊息：{message.content}")
 
+    # 由於 affection 現在為 TEXT，需先轉成整數再做運算
+    try:
+        affection_value = int(db_affection)
+    except Exception as e:
+        affection_value = 0
+
     # 簡易好感度調整（依訊息內容更新好感度）
     if "喜歡" in sanitized_content:
-        db_affection += 5
+        affection_value += 5
     if "討厭" in sanitized_content:
-        db_affection -= 5
-    cursor.execute("UPDATE user_affection SET affection=? WHERE user_id=?", (db_affection, user_id))
+        affection_value -= 5
+    # 更新前轉回字串儲存
+    cursor.execute("UPDATE user_affection SET affection=? WHERE user_id=?", (str(affection_value), user_id))
     conn.commit()
 
     # 組成發送給 OpenAI 的 prompt（不使用聊天記錄做上下文，只使用 cognition）
