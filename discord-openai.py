@@ -56,12 +56,13 @@ async def on_message(message: discord.Message):
 
     # --- 處理 >character new 指令 ---
     if message.content.lower().startswith(">character new"):
-        match = re.match(r">character new user_id=(\S+)name=(\S+) nickname=(\S+)", message.content)
+        # 使用更靈活的解析方式
+        match = re.findall(r"user_id=([\S]+)\s+name=(.+?)\s+nickname=(.+)", message.content)
         if not match:
-            await message.channel.send("指令格式錯誤，請使用：\n>character new user_id=<user_id>name=<name> nickname=<nickname>")
+            await message.channel.send("指令格式錯誤，請使用：\n>character new user_id=<user_id> name=<name> nickname=<nickname>")
             return
 
-        user_id, name, nickname = match.groups()
+        user_id, name, nickname = match[0]
 
         # 檢查角色是否已存在
         cursor.execute("SELECT * FROM user_affection WHERE user_id = ?", (user_id,))
@@ -73,7 +74,7 @@ async def on_message(message: discord.Message):
         cursor.execute("""
             INSERT INTO user_affection (user_id, name, nickname, affection, greeting, cognition, chat)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (user_id, name, nickname, "0", "", "", ""))
+        """, (user_id, name.strip(), nickname.strip(), "0", "", "", ""))
         conn.commit()
         await message.channel.send(f"成功建立角色：\nuser_id={user_id}  name={name}  nickname={nickname}")
         return
