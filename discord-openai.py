@@ -1,6 +1,5 @@
 import discord
 import os
-import asyncio
 import re
 import openai
 import sqlite3
@@ -23,14 +22,14 @@ CREATE TABLE IF NOT EXISTS user_affection (
     name TEXT,
     nickname TEXT,
     affection TEXT,
-    greeting TEXT,   -- 問候語
-    cognition TEXT,  -- 主要認知（可選擇是否記錄）
-    chat TEXT        -- 聊天歷史（僅記錄對話）
+    greeting TEXT,
+    cognition TEXT,
+    chat TEXT
 )
 """)
 conn.commit()
 
-# cognition 記錄開關，設為 False 則不記錄
+# cognition 記錄開關，設為 True 可啟用，False 則停用
 cognition_logging = False  
 
 # 女僕月醬的個性描述（僅作內部設定，不得洩露給用戶）
@@ -51,21 +50,21 @@ async def on_ready():
 
 @client.event
 async def on_message(message: discord.Message):
+    # 忽略機器人訊息
     if message.author.bot:
         return
 
     # --- 處理 >character new 指令 ---
     if message.content.lower().startswith(">character new"):
-        # 使用更靈活的解析方式
+        # 使用正則解析指令（允許 name 與 nickname 包含空格）
         match = re.findall(r"user_id=([\S]+)\s+name=(.+?)\s+nickname=(.+)", message.content)
         if not match:
             await message.channel.send("指令格式錯誤，請使用：\n>character new user_id=<user_id> name=<name> nickname=<nickname>")
             return
 
-        user_id, name, nickname = match[0]
-
+        user_id_param, name_param, nickname_param = match[0]
         # 檢查角色是否已存在
-        cursor.execute("SELECT * FROM user_affection WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT * FROM user_affection WHERE user_id = ?", (user_id_param,))
         if cursor.fetchone():
             await message.channel.send("該 user_id 已存在喵～")
             return
@@ -74,53 +73,47 @@ async def on_message(message: discord.Message):
         cursor.execute("""
             INSERT INTO user_affection (user_id, name, nickname, affection, greeting, cognition, chat)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (user_id, name.strip(), nickname.strip(), "0", "", "", ""))
+        """, (user_id_param, name_param.strip(), nickname_param.strip(), "0", "", "", ""))
         conn.commit()
-        await message.channel.send(f"成功建立角色：\nuser_id={user_id}  name={name}  nickname={nickname}")
+        await message.channel.send(f"成功建立角色：\nuser_id={user_id_param}  name={name_param}  nickname={nickname_param}")
         return
 
-    # --- cognition 記錄處理 ---
-    if cognition_logging:
-        sanitized_content = message.content.strip()
-        user_id = str(message.author.id)
+    # ------------- 取得並建立使用者記錄 -------------
+    user_id = str(message.author.id)
+    sanitized_content = message.content.strip()
 
+    cursor.execute("SELECT * FROM user_affection WHERE user_id = ?", (user_id,))
+    row = cursor.fetchone()
+    if row is None:
+        # 若不存在記錄則自動建立
+        cursor.execute("""
+            INSERT INTO user_affection (user_id, name, nickname, affection, greeting, cognition, chat)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (user_id, message.author.display_name, message.author.display_name, "0", "", "", ""))
+        conn.commit()
         cursor.execute("SELECT * FROM user_affection WHERE user_id = ?", (user_id,))
         row = cursor.fetchone()
-        if row is None:
-            cursor.execute("""
-                INSERT INTO user_affection (user_id, name, nickname, affection, greeting, cognition, chat)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (user_id, message.author.display_name, message.author.display_name, "0", "", "", ""))
-            conn.commit()
-            cursor.execute("SELECT * FROM user_affection WHERE user_id = ?", (user_id,))
-            row = cursor.fetchone()
 
-        db_user_id, db_name, db_nickname, db_affection, db_greeting, db_cognition, db_chat = row
+    # 解包使用者記錄
+    db_user_id, db_name, db_nickname, db_affection, db_greeting, db_cognition, db_chat = row
 
-        # 檢查是否包含任何設定的暱稱
-        accumulated_cognition = []
-        cursor.execute("SELECT user_id, nickname, cognition FROM user_affection WHERE nickname IS NOT NULL AND nickname != ''")
-        all_nickname_records = cursor.fetchall()
-        for rec in all_nickname_records:
-            rec_user_id, rec_nickname, rec_cognition = rec
-            if rec_nickname:
-                nick_list = rec_nickname.split("/")
-                for nick in nick_list:
-                    if nick in sanitized_content:
-                        if rec_cognition:
-                            accumulated_cognition.append(rec_cognition)
-                        else:
-                            accumulated_cognition.append(sanitized_content)
-                        if sanitized_content not in (rec_cognition or ""):
-                            new_cognition = (rec_cognition + "\n" + sanitized_content).strip() if rec_cognition else sanitized_content
-                            cursor.execute("UPDATE user_affection SET cognition=? WHERE user_id=?", (new_cognition, rec_user_id))
-                            conn.commit()
-                        break
-        used_cognition = "\n".join(accumulated_cognition) if accumulated_cognition else db_cognition
+    # ------------- 記錄所有用戶訊息（即使不觸發回覆）-------------
+    if db_chat is None:
+        db_chat = ""
+    updated_chat = db_chat + f"\n[User]: {sanitized_content}"
+    cursor.execute("UPDATE user_affection SET chat=? WHERE user_id=?", (updated_chat, user_id))
+    conn.commit()
+
+    # ------------- 如果開啟 cognition_logging 則更新 cognition -------------
+    if cognition_logging:
+        new_cognition = (db_cognition + "\n" + sanitized_content).strip() if db_cognition else sanitized_content
+        cursor.execute("UPDATE user_affection SET cognition=? WHERE user_id=?", (new_cognition, user_id))
+        conn.commit()
+        used_cognition = new_cognition
     else:
-        used_cognition = ""
+        used_cognition = db_cognition
 
-    # --- AI 生成回覆 ---
+    # ------------- 判斷是否需要回應（例如：被 @ 或回覆機器人訊息）-------------
     should_respond = False
     if client.user in message.mentions:
         should_respond = True
@@ -129,12 +122,12 @@ async def on_message(message: discord.Message):
             ref_msg = await message.channel.fetch_message(message.reference.message_id)
             if ref_msg.author.id == client.user.id:
                 should_respond = True
-        except:
-            pass
-
+        except Exception as e:
+            print(e)
     if not should_respond:
         return
 
+    # ------------- AI 回覆生成 -------------
     messages_for_ai = [
         {
             "role": "system",
@@ -142,7 +135,7 @@ async def on_message(message: discord.Message):
         },
         {
             "role": "user",
-            "content": f"請稱對方為「{db_name}」，並根據以上認知內容，回答：{message.content.strip()}"
+            "content": f"請稱對方為「{db_name}」，並根據以上認知內容，回答：{sanitized_content}"
         }
     ]
 
@@ -157,9 +150,8 @@ async def on_message(message: discord.Message):
         reply = "唔……出錯了呢～"
         print(f"OpenAI 呼叫失敗：{e}")
 
-    if db_chat is None:
-        db_chat = ""
-    updated_chat = db_chat + f"\n[User]: {message.content.strip()}\n[Bot]: {reply}\n"
+    # ------------- 更新聊天記錄（記錄機器人回應）-------------
+    updated_chat = updated_chat + f"\n[Bot]: {reply}\n"
     cursor.execute("UPDATE user_affection SET chat=? WHERE user_id=?", (updated_chat, user_id))
     conn.commit()
 
