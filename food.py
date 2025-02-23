@@ -87,6 +87,7 @@ data = {
     "減仇": {
         "name": "減仇 (-Aggro)",
         "items": [
+            {"id": "1018591", "name": "Mugi〟Nuo☁", "level": 10},
             {"id": "1010038", "name": "dara", "level": 10},
             {"id": "1010147", "name": "터냐", "level": 10},
             {"id": "1010261", "name": "イグルー", "level": 10},
@@ -120,9 +121,9 @@ data = {
     "對地": {
         "name": "對地傷害增加 (Dte Earth)",
         "items": [
+            {"id": "4233333", "name": "AlvinXxX", "level": 10},
             {"id": "2020202", "name": "S A R A", "level": 10},
             {"id": "1011001", "name": "S i r F a t h", "level": 9},
-            {"id": "4233333", "name": "AlvinXxX", "level": 9},
             {"id": "7100666", "name": "itspaez", "level": 9},
         ]
     },
