@@ -107,13 +107,16 @@ async def on_message(message: discord.Message):
     # 語法：
     #   >character <record id> nickname=<要添加的暱稱>
     #   >character <record id> name=<要更改的名稱>
+    #   >character <record id> delete cognition <想刪除的cognition裡的某個句子>
     if message.content.lower().startswith(">character"):
         parts = message.content.split(maxsplit=2)
         if len(parts) < 3:
             await message.channel.send("指令格式錯誤，請參考：\n"
                                        ">character <record id> nickname=<要添加的暱稱>\n"
                                        "或\n"
-                                       ">character <record id> name=<要更改的名稱>")
+                                       ">character <record id> name=<要更改的名稱>\n"
+                                       "或\n"
+                                       ">character <record id> delete cognition <想刪除的句子>")
             return
         record_id = parts[1].strip()
         parameter = parts[2].strip()
@@ -147,6 +150,31 @@ async def on_message(message: discord.Message):
             cursor.execute("UPDATE user_affection SET name = ? WHERE user_id = ?", (new_name, record_id))
             conn.commit()
             await message.channel.send(f"{record_id} 現在的 name = {new_name}")
+            return
+        # 處理 delete cognition 指令
+        elif parameter.lower().startswith("delete cognition"):
+            # 取得欲刪除的句子（指令後方內容）
+            sentence_to_delete = parameter[len("delete cognition"):].strip()
+            if not sentence_to_delete:
+                await message.channel.send("請提供要刪除的句子喔～")
+                return
+            cursor.execute("SELECT cognition FROM user_affection WHERE user_id = ?", (record_id,))
+            row = cursor.fetchone()
+            if row is None:
+                await message.channel.send("查無該角色的資料喔~")
+                return
+            current_cognition = row[0] if row[0] else ""
+            # 假設每個句子以換行符號分隔
+            sentences = current_cognition.split("\n")
+            if sentence_to_delete not in sentences:
+                await message.channel.send("認知中未找到指定句子喔～")
+                return
+            # 過濾掉完全相同的句子
+            updated_sentences = [s for s in sentences if s != sentence_to_delete]
+            new_cognition = "\n".join(updated_sentences).strip()
+            cursor.execute("UPDATE user_affection SET cognition=? WHERE user_id=?", (new_cognition, record_id))
+            conn.commit()
+            await message.channel.send(f"{record_id} 的 cognition 已更新。")
             return
         else:
             await message.channel.send("指令格式錯誤，請確認後再試一次喵～")
