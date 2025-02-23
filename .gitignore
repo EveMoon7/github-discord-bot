@@ -1,5 +1,5 @@
 *.db-shm
 *.db-wal
 bot.log
-
+user_affection.db
 dump.sql
