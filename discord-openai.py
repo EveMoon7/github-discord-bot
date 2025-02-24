@@ -224,9 +224,20 @@ async def on_message(message: discord.Message):
     if not should_respond:
         return
 
-    # 讀取頻道歷史訊息作為上下文，這裡使用列表生成式取得最近 15 則訊息（倒序排列）
-    history = [msg async for msg in message.channel.history(limit=15)]
-    context = "\n".join([f"{msg.author.display_name}: {msg.content}" for msg in reversed(history)])
+    # 讀取頻道歷史訊息作為上下文，這裡使用列表生成式取得最近 20 則訊息
+    history = [msg async for msg in message.channel.history(limit=20)]
+    context_lines = []
+    # 將訊息依照時間順序排列，並查詢 user_affection 取得更精準的使用者名稱
+    for msg in reversed(history):
+        uid = str(msg.author.id)
+        cursor.execute("SELECT name FROM user_affection WHERE user_id = ?", (uid,))
+        row = cursor.fetchone()
+        if row is not None:
+            display_name = row[0]
+        else:
+            display_name = msg.author.display_name
+        context_lines.append(f"[{uid}] {display_name}: {msg.content}")
+    context = "\n".join(context_lines)
 
     messages_for_ai = [
         {
