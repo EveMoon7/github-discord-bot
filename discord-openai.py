@@ -141,7 +141,7 @@ async def on_message(message: discord.Message):
             if not current_cognition:
                 await message.channel.send("該角色沒有任何 cognition 資料喵～")
                 return
-            # 按行分割並移除與提供句子完全相符的那一行
+            # 按行分割並移除與提供句子完全匹配的那一行
             lines = current_cognition.split("\n")
             new_lines = [line for line in lines if line.strip() != sentence_to_delete]
             if len(new_lines) == len(lines):
@@ -151,6 +151,29 @@ async def on_message(message: discord.Message):
             cursor.execute("UPDATE user_affection SET cognition = ? WHERE user_id = ?", (updated_cognition, record_id))
             conn.commit()
             await message.channel.send("成功刪除指定的 cognition 句子喵～")
+            return
+
+        # 新增 cognition 指令：>character <record id> add cognition <想添加的句子>
+        elif rest_of_command.lower().startswith("add cognition "):
+            sentence_to_add = rest_of_command[len("add cognition "):].strip()
+            if not sentence_to_add:
+                await message.channel.send("請提供要添加的句子喵～")
+                return
+            cursor.execute("SELECT cognition FROM user_affection WHERE user_id = ?", (record_id,))
+            row = cursor.fetchone()
+            if row is None:
+                await message.channel.send("找不到該 record id 喵～")
+                return
+            current_cognition = row[0] if row[0] else ""
+            # 依行分割後檢查是否已有相同句子
+            lines = current_cognition.split("\n") if current_cognition else []
+            if sentence_to_add in lines:
+                await message.channel.send("該句子已存在喵～")
+                return
+            updated_cognition = current_cognition + "\n" + sentence_to_add if current_cognition else sentence_to_add
+            cursor.execute("UPDATE user_affection SET cognition = ? WHERE user_id = ?", (updated_cognition, record_id))
+            conn.commit()
+            await message.channel.send("成功添加指定的 cognition 句子喵～")
             return
 
     # --- cognition 查詢處理（只查詢，不記錄） ---
