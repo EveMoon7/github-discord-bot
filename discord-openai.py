@@ -224,8 +224,8 @@ async def on_message(message: discord.Message):
     if not should_respond:
         return
 
-    # 讀取頻道歷史訊息作為上下文，這裡取得最近 10 則訊息（倒序排列）
-    history = await message.channel.history(limit=10).flatten()
+    # 讀取頻道歷史訊息作為上下文，這裡使用列表生成式取得最近 15 則訊息（倒序排列）
+    history = [msg async for msg in message.channel.history(limit=15)]
     context = "\n".join([f"{msg.author.display_name}: {msg.content}" for msg in reversed(history)])
 
     messages_for_ai = [
