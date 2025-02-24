@@ -79,7 +79,81 @@ async def on_message(message: discord.Message):
         await message.channel.send(f"成功建立角色：\nuser_id={user_id}  name={name}  nickname={nickname}")
         return
 
-    # --- Cognition 查詢處理（只查詢，不記錄） ---
+    # --- 處理其他 >character 指令 ---
+    if message.content.lower().startswith(">character ") and not message.content.lower().startswith(">character new"):
+        parts = message.content.split()
+        if len(parts) < 2:
+            await message.channel.send("指令格式錯誤喵～")
+            return
+        record_id = parts[1]
+        rest_of_command = message.content[len(">character " + record_id):].strip()
+
+        # 新增暱稱指令：>character <record id> nickname=<要添加的暱稱>
+        if rest_of_command.startswith("nickname="):
+            new_nick = rest_of_command[len("nickname="):].strip()
+            if not new_nick:
+                await message.channel.send("請提供要添加的暱稱喵～")
+                return
+            cursor.execute("SELECT nickname FROM user_affection WHERE user_id = ?", (record_id,))
+            row = cursor.fetchone()
+            if row is None:
+                await message.channel.send("找不到該 record id 喵～")
+                return
+            current_nickname = row[0] if row[0] else ""
+            nicknames = current_nickname.split("/") if current_nickname else []
+            if new_nick in nicknames:
+                await message.channel.send("該暱稱已存在喵～")
+                return
+            updated_nickname = current_nickname + "/" + new_nick if current_nickname else new_nick
+            cursor.execute("UPDATE user_affection SET nickname = ? WHERE user_id = ?", (updated_nickname, record_id))
+            conn.commit()
+            await message.channel.send(f"成功添加暱稱：{new_nick}")
+            return
+
+        # 修改名稱指令：>character <record id> name=<要更改的名稱>
+        elif rest_of_command.startswith("name="):
+            new_name = rest_of_command[len("name="):].strip()
+            if not new_name:
+                await message.channel.send("請提供要更改的名稱喵～")
+                return
+            cursor.execute("SELECT name FROM user_affection WHERE user_id = ?", (record_id,))
+            row = cursor.fetchone()
+            if row is None:
+                await message.channel.send("找不到該 record id 喵～")
+                return
+            cursor.execute("UPDATE user_affection SET name = ? WHERE user_id = ?", (new_name, record_id))
+            conn.commit()
+            await message.channel.send(f"成功更改名稱為：{new_name}")
+            return
+
+        # 刪除 cognition 指令：>character <record id> delete cognition <想刪除的句子>
+        elif rest_of_command.lower().startswith("delete cognition "):
+            sentence_to_delete = rest_of_command[len("delete cognition "):].strip()
+            if not sentence_to_delete:
+                await message.channel.send("請提供要刪除的句子喵～")
+                return
+            cursor.execute("SELECT cognition FROM user_affection WHERE user_id = ?", (record_id,))
+            row = cursor.fetchone()
+            if row is None:
+                await message.channel.send("找不到該 record id 喵～")
+                return
+            current_cognition = row[0] if row[0] else ""
+            if not current_cognition:
+                await message.channel.send("該角色沒有任何 cognition 資料喵～")
+                return
+            # 按行分割並移除與提供句子完全相符的那一行
+            lines = current_cognition.split("\n")
+            new_lines = [line for line in lines if line.strip() != sentence_to_delete]
+            if len(new_lines) == len(lines):
+                await message.channel.send("找不到完全匹配的句子喵～")
+                return
+            updated_cognition = "\n".join(new_lines)
+            cursor.execute("UPDATE user_affection SET cognition = ? WHERE user_id = ?", (updated_cognition, record_id))
+            conn.commit()
+            await message.channel.send("成功刪除指定的 cognition 句子喵～")
+            return
+
+    # --- cognition 查詢處理（只查詢，不記錄） ---
     sanitized_content = message.content.strip()
     user_id = str(message.author.id)
 
