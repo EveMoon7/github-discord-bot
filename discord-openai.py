@@ -231,34 +231,29 @@ async def on_message(message: discord.Message):
     else:
         command_text = msg_content
 
-    # 取得經過預處理的當前訊息關鍵詞
+    # 取得經過預處理的當前訊息
     processed_user_input = preprocess_user_input(command_text, db_name)
+
+    # 新增：檢查是否為介紹指令，並嘗試從訊息中提取目標名稱
+    target_name = db_name  # 預設仍為當前用戶名稱
+    match = re.search(r"介紹\s*([\u4e00-\u9fa5A-Za-z0-9_]+)", processed_user_input)
+    if match:
+        target_name = match.group(1)
+
     keywords = extract_keywords(processed_user_input)
 
-    # 讀取頻道歷史訊息作為上下文，僅納入與當前訊息有關聯的部分：
-    # － 同一用戶只保留最新一則
-    # － 其他用戶的訊息若包含至少一個關鍵詞才納入
+    # 讀取頻道歷史訊息作為上下文，修改為完整納入最近對話內容
     history = [msg async for msg in message.channel.history(limit=10)]
     context_lines = []
-    added_current_author = False
     for msg in reversed(history):
         if msg.id == message.id:
             continue
-        if msg.author.id == message.author.id:
-            if not added_current_author:
-                uid = str(msg.author.id)
-                cursor.execute("SELECT name FROM user_affection WHERE user_id = ?", (uid,))
-                row = cursor.fetchone()
-                display_name = row[0] if row is not None else msg.author.display_name
-                context_lines.append(f"{display_name}: {msg.content}")
-                added_current_author = True
-        else:
-            if any(keyword in msg.content for keyword in keywords):
-                uid = str(msg.author.id)
-                cursor.execute("SELECT name FROM user_affection WHERE user_id = ?", (uid,))
-                row = cursor.fetchone()
-                display_name = row[0] if row is not None else msg.author.display_name
-                context_lines.append(f"{display_name}: {msg.content}")
+        uid = str(msg.author.id)
+        cursor.execute("SELECT name FROM user_affection WHERE user_id = ?", (uid,))
+        row = cursor.fetchone()
+        display_name = row[0] if row is not None else msg.author.display_name
+        # 將所有對話內容都納入上下文，不再過濾關鍵詞
+        context_lines.append(f"{display_name}: {msg.content}")
     context = "\n".join(context_lines)
 
     # 若訊息以 @bot 開頭且包含關鍵字（例如 "介紹"），則忽略上下文
@@ -287,7 +282,7 @@ async def on_message(message: discord.Message):
     else:
         ref_line = ""
 
-    # 組合系統提示：先放個性描述，再加入篩選後的上下文、回覆重點（如有），再強調回答必須簡短且保留個性
+    # 組合系統提示：先放個性描述，再加入完整上下文、回覆重點（如有），再強調回答必須簡短且保留個性
     messages_for_ai = [
         {
             "role": "system",
@@ -303,7 +298,7 @@ async def on_message(message: discord.Message):
         },
         {
             "role": "user",
-            "content": f"請稱對方為「{db_name}」，並根據以上內容回答：{processed_user_input}"
+            "content": f"請稱對方為「{target_name}」，並根據以上內容回答：{processed_user_input}"
         }
     ]
 
