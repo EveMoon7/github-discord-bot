@@ -2,3 +2,5 @@
 *.db-wal
 bot.log
 dump.sql
+user_affection.db
+push_db.log
