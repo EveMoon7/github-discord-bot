@@ -541,7 +541,7 @@ def simulate_diary_pass(start_level: int, start_progress: float, tasks_sequence:
         else:
             xp_gain = xp_to_int(xp_val_raw)
         xp_current += xp_gain
-        Final_task = (chapter, task_num, task_name)
+        final_task = (chapter, task_num, task_name)
         while xp_current >= get_xp(current_level):
             xp_current -= get_xp(current_level)
             current_level += 1
