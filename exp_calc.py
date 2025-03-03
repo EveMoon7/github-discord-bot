@@ -1,8 +1,8 @@
-import os
 import re
 import math
 import discord
 from discord.ext import commands
+import os
 
 # ─────────────────────────────
 # TOKEN（請將下面的 TOKEN 替換成您的 Bot Token）
@@ -212,7 +212,8 @@ mq_data = {
     "被擾亂的戰況 Chaotic Situation": 168900000,
     "苦澀的真相 The Bitter Truth": 173800000,
     "粗野的拉納族王子 The Uncouth Rana Prince": 178800000,
-    "變異寇現連生體村 Mutant Coenubia Village": 183900000
+    "變異寇現連生體村 Mutant Coenubia Village": 183900000,
+    "與變異利古希族的激戰 Fierce Battle with Mutant Lixis": 189000000
 }
 
 def build_chapters_dict(mq_data: dict) -> dict:
@@ -258,7 +259,7 @@ def parse_chapter_range(chapter_range_str: str) -> (str, str):
     parts = chapter_range_str.split()
     if len(parts) == 2:
         return parts[0], parts[1]
-    raise ValueError("章節範圍格式錯誤，請使用類似 '11-1 > 14-6' 的格式。")
+    raise ValueError("章節範圍格式錯誤，請使用類似 '11-1 > 14-7' 的格式。")
 
 # ─────────────────────────────
 # 新版 Modal：填寫基本資訊＋章節範圍、冒險者日記模式與跳過皇魔前遺跡 bonus 開關
@@ -282,10 +283,10 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
         required=False
     )
     chapter_range = discord.ui.TextInput(
-        label="開始章節 > 結束章節 (例: 11-1 > 14-6)",
-        placeholder="填寫 <最後>/<last> = 最後一個主綫任務",
+        label="開始章節 > 結束章節 (例: 11-1 > 14-7)",
+        placeholder="填寫 <最後>/<Final> = 最後一個主綫任務",
         style=discord.TextStyle.short,
-        default="11-1 > Last",
+        default="11-1 > Final",
         required=False
     )
     diary_mode = discord.ui.TextInput(
@@ -307,7 +308,7 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
         # 使用本地變數來處理空白值，設定預設值：
         level_input = self.level_progress.value.strip() if self.level_progress.value.strip() else "1 (0%)"
         target_input = self.target_level.value.strip() if self.target_level.value.strip() else "1"
-        chapter_input = self.chapter_range.value.strip() if self.chapter_range.value.strip() else "1-1 > last"
+        chapter_input = self.chapter_range.value.strip() if self.chapter_range.value.strip() else "1-1 > Final"
         diary_input = self.diary_mode.value.strip() if self.diary_mode.value.strip() else "No"
         skip_input = self.skip_center_exp.value.strip() if self.skip_center_exp.value.strip() else "No"
 
@@ -325,11 +326,11 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
             except ValueError as e:
                 await interaction.response.send_message(str(e), ephemeral=True)
                 return
-            # 若結尾輸入 last 或 最後，則替換為最後章節的最後任務
-            if end_input.lower() in ["last", "最後"]:
+            # 若結尾輸入 final 或 最後，則替換為最後章節的最後任務
+            if end_input.lower() in ["final", "最後"]:
                 ordered_chapters = sorted(chapters_dict.keys(), key=lambda x: int(x.split()[1]))
-                last_chap = ordered_chapters[-1]
-                end_input = f"{int(last_chap.split()[1])}-{len(chapters_dict[last_chap]['tasks'])}"
+                final_chap = ordered_chapters[-1]
+                end_input = f"{int(final_chap.split()[1])}-{len(chapters_dict[final_chap]['tasks'])}"
             if '-' not in start_input:
                 start_input = f"{start_input}-1"
             if '-' not in end_input:
@@ -411,8 +412,8 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
             local_level = level
             local_progress = progress
             while True:
-                new_level, new_progress, last_task = simulate_diary_pass(local_level, local_progress, tasks_sequence, target_level, target_progress, skip_center)
-                diary_runs.append((last_task, new_level, new_progress))
+                new_level, new_progress, final_task = simulate_diary_pass(local_level, local_progress, tasks_sequence, target_level, target_progress, skip_center)
+                diary_runs.append((final_task, new_level, new_progress))
                 if new_level == local_level and new_progress == local_progress:
                     break
                 if new_level > target_level or (new_level == target_level and new_progress >= target_progress):
@@ -428,9 +429,9 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
         description += f"達成等級: **Lv.{final_level}** **({int(final_progress)}%)**\n"
         if diary_runs:
             description += "\n【冒險者日記模式】\n"
-            for i, (last_task, run_level, run_progress) in enumerate(diary_runs, start=1):
-                if last_task:
-                    chapter, task_num, task_name = last_task
+            for i, (final_task, run_level, run_progress) in enumerate(diary_runs, start=1):
+                if final_task:
+                    chapter, task_num, task_name = final_task
                     description += f"{i}. {chapter}-{task_num} {task_name} Lv.{run_level} ({int(run_progress)}%)\n"
                 else:
                     description += f"{i}. 未能完成任務 Lv.{run_level} ({int(run_progress)}%)\n"
@@ -523,7 +524,7 @@ def get_extra_xp_and_tasks_sequence(chapters: dict, start_input: str, end_input:
 def simulate_diary_pass(start_level: int, start_progress: float, tasks_sequence: list, target_level: int, target_progress: float, skip_center: bool = False) -> (int, float, tuple):
     xp_current = (start_progress / 100) * get_xp(start_level)
     current_level = start_level
-    last_task = None
+    final_task = None
     for (chapter, task_num, task_name, xp_val_raw) in tasks_sequence:
         # 處理 Chapter 9 中的【皇魔前遺跡】任務
         if chapter.startswith("Chapter 9") and task_num == EMPEROR_RELIC_TASK_INDEX:
@@ -540,7 +541,7 @@ def simulate_diary_pass(start_level: int, start_progress: float, tasks_sequence:
         else:
             xp_gain = xp_to_int(xp_val_raw)
         xp_current += xp_gain
-        last_task = (chapter, task_num, task_name)
+        Final_task = (chapter, task_num, task_name)
         while xp_current >= get_xp(current_level):
             xp_current -= get_xp(current_level)
             current_level += 1
@@ -548,7 +549,7 @@ def simulate_diary_pass(start_level: int, start_progress: float, tasks_sequence:
         if current_level > target_level or (current_level == target_level and xp_current >= (target_progress / 100) * get_xp(current_level)):
             break
     progress = 100 * xp_current / get_xp(current_level)
-    return current_level, progress, last_task
+    return current_level, progress, final_task
 
 # ─────────────────────────────
 # 開始按鈕 View：觸發 BaseModal
