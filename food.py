@@ -154,6 +154,7 @@ data = {
     "對光": {
         "name": "對光傷害增加 (Dte Light)",
         "items": [
+            {"id": "4044174", "name": "幻舞蝶劍", "level": 9},
             {"id": "1020345", "name": "Death · Gun", "level": 9},
             {"id": "3111999", "name": "Espur", "level": 8},
         ]
