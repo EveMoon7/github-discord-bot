@@ -70,10 +70,10 @@ def main():
             print(f"---- {script} 無錯誤訊息。")
 
     if not success:
-        print("\n❌ 測試醬 無法登入.")
+        print("\n❌ 女僕月醬 無法登入.")
         sys.exit(1)
     else:
-        print("\n✅ 測試醬 已登入.")
+        print("\n✅ 女僕月醬 已登入.")
 
     # 主程序持續運行，避免 main.py 執行完畢後退出
     try:
