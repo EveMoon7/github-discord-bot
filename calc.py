@@ -507,11 +507,9 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
         result_embed.set_footer(text=footer_text)
         
         if interaction.user.id in user_start_message:
-            # 修正：先更新原始訊息，再以回覆確認計算結果
-            await user_start_message[interaction.user.id].edit(content="", embed=result_embed, view=None)
-            await interaction.response.send_message("計算結果已更新！", ephemeral=True)
+            await interaction.response.edit_message(content="", embed=result_embed, view=None)
         else:
-            await interaction.response.send_message("無法找到原始訊息，請重新啟動計算器。", ephemeral=True)
+            await interaction.response.send_message("無法找到原始訊息，請重新啟動計算器。", ephemeral=False)
 
 # ======================================================================
 # 以下為 skill_calc.py 的數據邏輯與互動介面
