@@ -63,6 +63,7 @@ def add_xp(begin: int, begin_percentage: float, extra_xp: float) -> (int, float)
 
 # ─────────────────────────────
 # 主線任務資料（mq_data）
+# ─────────────────────────────
 mq_data = {
     "Chapter 1 混沌的序幕": "",
     "陌生的街道與人群 First Time Visit": 30,
@@ -407,13 +408,12 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
         try:
             start_parts = start_input.split('-')
             start_chap_num = int(start_parts[0])
-            start_task_index = int(start_parts[1])
             start_key = None
             for key in chapters_dict:
                 if int(key.split()[1]) == start_chap_num:
                     start_key = key
                     break
-            if start_key is None or start_task_index > len(chapters_dict[start_key]["tasks"]) or start_task_index <= 0:
+            if start_key is None or int(start_parts[1]) > len(chapters_dict[start_key]["tasks"]) or int(start_parts[1]) <= 0:
                 msg = "你寫的開始章節任務不存在喵~\n"
                 if start_key is not None:
                     msg += "【當前章節所有任務】\n"
@@ -422,7 +422,7 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
                 await interaction.response.send_message(msg, ephemeral=True)
                 return
             else:
-                start_task_name = chapters_dict[start_key]["tasks"][start_task_index - 1][0].split()[0]
+                start_task_name = chapters_dict[start_key]["tasks"][int(start_parts[1]) - 1][0].split()[0]
         except Exception:
             await interaction.response.send_message("你寫的開始章節任務不存在喵~", ephemeral=True)
             return
@@ -430,13 +430,12 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
         try:
             end_parts = end_input.split('-')
             end_chap_num = int(end_parts[0])
-            end_task_index = int(end_parts[1])
             end_key = None
             for key in chapters_dict:
                 if int(key.split()[1]) == end_chap_num:
                     end_key = key
                     break
-            if end_key is None or end_task_index > len(chapters_dict[end_key]["tasks"]) or end_task_index <= 0:
+            if end_key is None or int(end_parts[1]) > len(chapters_dict[end_key]["tasks"]) or int(end_parts[1]) <= 0:
                 msg = "你寫的結束章節任務不存在喵~\n"
                 if end_key is not None:
                     msg += "【當前章節所有任務】\n"
@@ -445,7 +444,7 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
                 await interaction.response.send_message(msg, ephemeral=True)
                 return
             else:
-                end_task_name = chapters_dict[end_key]["tasks"][end_task_index - 1][0].split()[0]
+                end_task_name = chapters_dict[end_key]["tasks"][int(end_parts[1]) - 1][0].split()[0]
         except Exception:
             await interaction.response.send_message("你寫的結束章節任務不存在喵~", ephemeral=True)
             return
@@ -775,8 +774,6 @@ class SkillCalcModal(discord.ui.Modal, title="托蘭技能點計算器"):
         defender_disp = min(defender_rank, 200000)
         supporter_disp = min(supporter_rank, 200000)
         breaker_disp = min(breaker_rank, 200000)
-        first_aid_disp = min(first_aid, 1000)
-        KO_disp = min(KO, 1000)
         
         description = f"**━━✨達成結果✨━━**\n\n**技能點數 = {skill_total}**\n**━━━━━━━━━━━━**"
         
@@ -790,7 +787,7 @@ class SkillCalcModal(discord.ui.Modal, title="托蘭技能點計算器"):
         footer_text = (
             f"角色等級: {current_level} / 達成章節: {max_chapter_disp}\n"
             f"戰/坦/後/輔: {attacker_disp}/{defender_disp}/{supporter_disp}/{breaker_disp}\n"
-            f"急救/戰死: {first_aid_disp}/{KO_disp}\n"
+            f"急救/戰死: {min(first_aid, 1000)}/{min(KO, 1000)}\n"
             f"精通技能: {mastered_skills_disp}項 / 同時點滿技能樹: {mastered_trees_disp}株 / 連續遊玩: {play_time_hours_disp}小時+\n"
             f"黑騎士20k: {minigame_bk}  卡牌30積分: {minigame_cg}  寵競3項: {minigame_pet}"
         )
@@ -871,42 +868,72 @@ class AbilityCalcModal(discord.ui.Modal, title="托蘭能力值計算器"):
 
 class ExpCalcButtonView(discord.ui.View):
     def __init__(self, author):
-        super().__init__()
+        # 縮短 timeout 減少互動 token 過期情況
+        super().__init__(timeout=60.0)
         self.author = author
+
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("這個按鈕不是你的喵～", ephemeral=True)
             return False
         return True
+
+    async def on_timeout(self):
+        # 停用所有按鈕
+        for child in self.children:
+            child.disabled = True
+        # 如果原訊息有記錄，可選擇編輯訊息更新 View 狀態
+
     @discord.ui.button(label="主綫經驗計算器", style=discord.ButtonStyle.primary)
     async def exp_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(BaseModal(author_id=interaction.user.id))
+        try:
+            await interaction.response.send_modal(BaseModal(author_id=interaction.user.id))
+        except discord.errors.DiscordServerError:
+            await interaction.followup.send("主綫經驗計算器模態視窗發送失敗，請重試。", ephemeral=True)
 
 class SkillCalcButtonView(discord.ui.View):
     def __init__(self, author):
-        super().__init__()
+        super().__init__(timeout=60.0)
         self.author = author
+
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("這個按鈕不是你的喵～", ephemeral=True)
             return False
         return True
+
+    async def on_timeout(self):
+        for child in self.children:
+            child.disabled = True
+
     @discord.ui.button(label="技能點數計算器", style=discord.ButtonStyle.primary)
     async def skill_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(SkillCalcModal())
+        try:
+            await interaction.response.send_modal(SkillCalcModal())
+        except discord.errors.DiscordServerError:
+            await interaction.followup.send("技能點數計算器模態視窗發送失敗，請重試。", ephemeral=True)
 
 class StatCalcButtonView(discord.ui.View):
     def __init__(self, author):
-        super().__init__()
+        super().__init__(timeout=60.0)
         self.author = author
+
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("這個按鈕不是你的喵～", ephemeral=True)
             return False
         return True
+
+    async def on_timeout(self):
+        for child in self.children:
+            child.disabled = True
+
     @discord.ui.button(label="能力點數計算器", style=discord.ButtonStyle.primary)
     async def stat_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(AbilityCalcModal())
+        try:
+            await interaction.response.send_modal(AbilityCalcModal())
+        except discord.errors.DiscordServerError:
+            await interaction.followup.send("能力點數計算器模態視窗發送失敗，請重試。", ephemeral=True)
 
 # ======================================================================
 # 以下為綜合 View（供 >calc 指令使用）
@@ -914,22 +941,39 @@ class StatCalcButtonView(discord.ui.View):
 
 class CombinedCalcView(discord.ui.View):
     def __init__(self, author):
-        super().__init__()
+        super().__init__(timeout=60.0)
         self.author = author
+
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("這個按鈕不是你的喵～", ephemeral=True)
             return False
         return True
+
+    async def on_timeout(self):
+        for child in self.children:
+            child.disabled = True
+
     @discord.ui.button(label="主綫經驗計算器", style=discord.ButtonStyle.primary)
     async def exp_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(BaseModal(author_id=interaction.user.id))
+        try:
+            await interaction.response.send_modal(BaseModal(author_id=interaction.user.id))
+        except discord.errors.DiscordServerError:
+            await interaction.followup.send("主綫經驗計算器模態視窗發送失敗，請重試。", ephemeral=True)
+
     @discord.ui.button(label="技能點數計算器", style=discord.ButtonStyle.primary)
     async def skill_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(SkillCalcModal())
+        try:
+            await interaction.response.send_modal(SkillCalcModal())
+        except discord.errors.DiscordServerError:
+            await interaction.followup.send("技能點數計算器模態視窗發送失敗，請重試。", ephemeral=True)
+
     @discord.ui.button(label="能力點數計算器", style=discord.ButtonStyle.primary)
     async def stat_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(AbilityCalcModal())
+        try:
+            await interaction.response.send_modal(AbilityCalcModal())
+        except discord.errors.DiscordServerError:
+            await interaction.followup.send("能力點數計算器模態視窗發送失敗，請重試。", ephemeral=True)
 
 # ======================================================================
 # 建立 Bot 與指令（指令前綴設為 >）
