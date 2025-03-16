@@ -6,7 +6,23 @@ import os
 import sys
 from discord.ext import commands
 
-# 載入 .env 檔案
+# 預先定義主線王章節對應的標題
+chapter_titles = {
+    "1": "Chapter 1 - 混沌的序幕",
+    "2": "Chapter 2 - 神聖晶石騷動記",
+    "3": "Chapter 3 - 舊神之戰",
+    "4": "Chapter 4 - 新的黑影",
+    "5": "Chapter 5 - 襲捲黑暗的風暴",
+    "6": "Chapter 6 - 兩派泰尼斯塔",
+    "7": "Chapter 7 - 動亂的阿爾提玫亞",
+    "8": "Chapter 8 - 通往艾路登波姆之路",
+    "9": "Chapter 9 - 艾路登波姆奪還戰",
+    "10": "Chapter 10 - 失落的神之舟",
+    "11": "Chapter 11 - 前往托蘭",
+    "12": "Chapter 12 - 龍人要塞",
+    "13": "Chapter 13 - 水之民族、龍、寇爾連生體",
+    "14": "Chapter 14 - 托蘭本土"
+}
 
 logging.basicConfig(level=logging.INFO)
 
@@ -104,7 +120,7 @@ def create_boss_embed(boss_info, boss_type):
         value=f"{boss_info.get('屬性', 'N/A')}\n\u200b",
         inline=False
     )
-    embed.add_field(name="物防 P.Def", value=f"{boss_info.get('物防', 'N/A')}", inline=True)
+    embed.add_field(name="物 P.Def", value=f"{boss_info.get('物防', 'N/A')}", inline=True)
     embed.add_field(name="魔防 M.Def", value=f"{boss_info.get('魔防', 'N/A')}\n\u200b", inline=True)
     embed.add_field(name="物理抗性 P.Res", value=f"{boss_info.get('物理抗性', 'N/A')}", inline=True)
     embed.add_field(name="魔法抗性 M.Res", value=f"{boss_info.get('魔法抗性', 'N/A')}\n\u200b", inline=True)
@@ -125,14 +141,12 @@ def create_boss_embed(boss_info, boss_type):
     if boss_info.get("物理-慣性變動"):
         embed.add_field(name="慣性變動率 Proration", value=inertia_text, inline=False)
 
-
     if boss_info.get("物理-慣性變動-多"):
         embed.add_field(name="物理-慣性變動", value=f"{boss_info.get('物理-慣性變動-多')}", inline=True)
     if boss_info.get("魔法-慣性變動-多"):
         embed.add_field(name="魔法-慣性變動", value=f"{boss_info.get('魔法-慣性變動-多')}", inline=True)
     if boss_info.get("普攻-慣性變動-多"):
         embed.add_field(name="普攻-慣性變動", value=f"{boss_info.get('普攻-慣性變動-多')}\n\u200b", inline=True)
-    
 
     if boss_info.get("控制"):
         embed.add_field(name="⋆˙ 控制 FTS ˙⋆", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
@@ -200,16 +214,22 @@ class BossSelectView(RestrictedView):
             value = str(idx)
             self.boss_mapping[value] = (boss, boss_type)
             label = boss.get("名稱", "未知")
-            # 調整描述：顯示 "章節 Chapter (章節)"
-            description = f"章節 Chapter {boss.get('章節', '未知')}"
-            options.append(discord.SelectOption(label=label, description=description, value=value))
+
+            # 直接取原本的 "章節" 欄位，若有 "章節 Chapter" 前綴就去掉
+            desc_raw = boss.get("章節", "未知")
+            desc_clean = desc_raw.replace("章節 Chapter", "").strip()
+
+            # 若經過去除後變成空字串，就放回原始 "未知" 以免顯示空白
+            if not desc_clean:
+                desc_clean = "未知"
+
+            options.append(discord.SelectOption(label=label, description=desc_clean, value=value))
         self.add_item(BossSelect(options))
         self.add_item(BackButton(author))
 
 # 新增：主線王的章節子選單
 class MainPhaseSelect(discord.ui.Select):
     def __init__(self, options, author: discord.User, main_boss_data: dict):
-        # placeholder 改為「選擇章節 Select Chapter」
         super().__init__(placeholder="選擇章節 Select Chapter", min_values=1, max_values=1, options=options)
         self.author = author
         self.main_boss_data = main_boss_data
@@ -223,42 +243,87 @@ class MainPhaseSelect(discord.ui.Select):
         if not filtered:
             await interaction.response.send_message("該章節沒有敵人。", ephemeral=True)
             return
+        full_title = chapter_titles.get(selected_phase, f"章節 {selected_phase}")
         view = BossSelectView(self.author, filtered)
-        # 回覆訊息保持為 "主線王 Main Quest Boss - 章節 Chapter (章節)"
-        await interaction.response.edit_message(content=f"章節 Chapter {selected_phase} | 是這裡嗎~(翻地圖", view=view)
+        await interaction.response.edit_message(content=f"{full_title} | 是這裡嗎~(翻地圖", view=view)
 
 class MainPhaseSelectView(RestrictedView):
     def __init__(self, author: discord.User):
         super().__init__(author, timeout=None)
         main_boss = boss_data_sets["main"]
-        phase_to_bosses = {}
-        for boss in main_boss.values():
-            phase = get_phase(boss)
-            phase_to_bosses.setdefault(phase, []).append(boss)
-        def sort_key(p):
-            try:
-                return float(p)
-            except:
-                return p
-        sorted_phases = sorted(phase_to_bosses.keys(), key=sort_key, reverse=True)
         options = []
-        for phase in sorted_phases:
-            boss_list = phase_to_bosses[phase]
-            # 將每個 boss 的中文別名（取 "別名" 欄位第一項）串聯，以逗號分隔
-            alias_list = []
-            for boss in boss_list:
-                aliases = boss.get("別名", [])
-                if aliases:
-                    alias_list.append(aliases[0])
-                else:
-                    alias_list.append(boss.get("名稱", "未知"))
-            desc = ", ".join(alias_list)
+        # 使用預先定義好的 chapter_titles 作為下拉選單的選項
+        # 依照章節數字，從高到低排序
+        for chapter in sorted(chapter_titles.keys(), key=lambda x: int(x), reverse=True):
+            boss_list = [boss for boss in main_boss.values() if get_phase(boss) == chapter]
+            if boss_list:
+                alias_list = []
+                for boss in boss_list:
+                    aliases = boss.get("別名", [])
+                    if aliases:
+                        alias_list.append(aliases[0])
+                    else:
+                        alias_list.append(boss.get("名稱", "未知"))
+                desc = ", ".join(alias_list)
+            else:
+                desc = "無敵人"
             options.append(discord.SelectOption(
-                label=f"章節 Chapter: {phase}",
-                value=phase,
+                label=chapter_titles[chapter],
+                value=chapter,
                 description=desc
             ))
         self.add_item(MainPhaseSelect(options, author, main_boss))
+        self.add_item(BackButton(author))
+
+# 活動王的子選單，根據 "活動" 分類
+class EventActivitySelect(discord.ui.Select):
+    def __init__(self, options, author: discord.User, event_boss_data: dict):
+        super().__init__(placeholder="選擇活動 Event", min_values=1, max_values=1, options=options)
+        self.author = author
+        self.event_boss_data = event_boss_data
+
+    async def callback(self, interaction: discord.Interaction):
+        selected_event = self.values[0]
+        filtered = []
+        for boss in self.event_boss_data.values():
+            if boss.get("活動", "未知") == selected_event:
+                filtered.append((boss, "event"))
+        if not filtered:
+            await interaction.response.send_message("該活動沒有敵人。", ephemeral=True)
+            return
+        view = BossSelectView(self.author, filtered)
+        await interaction.response.edit_message(content=f"{selected_event}", view=view)
+
+class EventActivitySelectView(RestrictedView):
+    def __init__(self, author: discord.User):
+        super().__init__(author, timeout=None)
+        event_boss = boss_data_sets["event"]
+        events = {}
+        for boss in event_boss.values():
+            activity = boss.get("活動", "未知")
+            if activity in events:
+                events[activity].append(boss)
+            else:
+                events[activity] = [boss]
+        options = []
+        for event_name, bosses in events.items():
+            boss_names = []
+            for boss in bosses:
+                name_full = boss.get("名稱", "未知")
+                # 只取中文名稱（取第一個空白前的部分）
+                if " " in name_full:
+                    chinese_name = name_full.split(" ")[0]
+                else:
+                    chinese_name = name_full
+                boss_names.append(chinese_name)
+            desc = ", ".join(boss_names)
+            options.append(discord.SelectOption(
+                label=event_name,
+                value=event_name,
+                description=desc
+            ))
+        options = sorted(options, key=lambda x: x.label)
+        self.add_item(EventActivitySelect(options, author, event_boss))
         self.add_item(BackButton(author))
 
 class BossTypeSelect(discord.ui.Select):
@@ -270,6 +335,9 @@ class BossTypeSelect(discord.ui.Select):
         if selected_type == "main":
             view = MainPhaseSelectView(interaction.user)
             await interaction.response.edit_message(content="女僕雷達尋找中 ~", view=view)
+        elif selected_type == "event":
+            view = EventActivitySelectView(interaction.user)
+            await interaction.response.edit_message(content="請選擇活動分類 ~", view=view)
         else:
             boss_list = []
             data = boss_data_sets.get(selected_type, {})
