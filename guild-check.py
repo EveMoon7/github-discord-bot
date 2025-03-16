@@ -2,18 +2,19 @@ import discord
 from discord.ext import commands
 import os
 
-# 從環境變數獲取機器人 Token
+# 從環境變數中讀取機器人 Token
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
-# 設定 Intents，需啟用 message_content、guilds 與 dm_messages
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
-intents.dm_messages = True
-
+intents.dm_messages = True  # 允許監聽私聊訊息
 bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 PASSWORD = "meng1212"  # 設定密碼
+
+# 用字典記錄曾與機器人私聊過的使用者 (Key 為使用者 ID)
+dm_users = {}
 
 @bot.event
 async def on_ready():
@@ -22,15 +23,22 @@ async def on_ready():
     for guild in bot.guilds:
         print(f'🔸 伺服器名稱: {guild.name} | ID: {guild.id}')
 
-# 以檔案名稱作為指令名稱（不含副檔名）
+@bot.event
+async def on_message(message):
+    # 如果訊息是在私聊頻道中，且不是機器人本身，則記錄該使用者
+    if isinstance(message.channel, discord.DMChannel) and not message.author.bot:
+        dm_users[message.author.id] = message.author
+    await bot.process_commands(message)
+
+# 以檔案名稱（不含副檔名）作為指令名稱
 command_name = os.path.splitext(os.path.basename(__file__))[0]
 
 @bot.command(name=command_name)
 async def command_func(ctx, input_password: str = None):
     """
     指令名稱與檔案名稱相同
-    使用範例：>檔案名稱 meng1212
-    驗證密碼正確後，回覆機器人加入的伺服器與與機器人私聊過的用戶
+    使用方式：>檔案名稱 meng1212
+    密碼驗證正確後，回覆機器人加入的伺服器與曾與機器人私聊過的個人使用者名稱
     """
     # 驗證密碼
     if input_password != PASSWORD:
@@ -40,19 +48,15 @@ async def command_func(ctx, input_password: str = None):
     # 取得機器人加入的伺服器列表
     guild_list = "\n".join([f"🔹 {guild.name} (ID: {guild.id})" for guild in bot.guilds])
     
-    # 取得機器人已知的私聊頻道 (DM Channels) 中的對象
-    dm_users = []
-    for channel in bot.private_channels:
-        if isinstance(channel, discord.DMChannel) and channel.recipient:
-            user = channel.recipient
-            dm_users.append(f"🔸 {user.name}#{user.discriminator} (ID: {user.id})")
-    dm_list = "\n".join(dm_users) if dm_users else "無私聊記錄"
-
-    # 直接在當前頻道回覆結果
+    # 從記錄中取得曾與機器人私聊的 Individual Users
+    dm_list = "\n".join([f"🔸 {user.name}#{user.discriminator} (ID: {user.id})" for user in dm_users.values()])
+    if not dm_list:
+        dm_list = "沒有記錄到 Individual Users（請先私訊機器人一次）"
+    
     response = (
         f"✅ **密碼驗證成功！**\n\n"
         f"🔹 **機器人目前加入的伺服器**：\n{guild_list}\n\n"
-        f"📩 **曾與機器人私聊的用戶**：\n{dm_list}"
+        f"📩 **Individual Users**：\n{dm_list}"
     )
     await ctx.send(response)
 
