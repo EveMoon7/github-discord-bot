@@ -13,7 +13,7 @@ bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 PASSWORD = "meng1212"  # 設定密碼
 
-# 用字典記錄曾與機器人私聊過的使用者 (Key 為使用者 ID)
+# 用字典記錄曾與機器人私聊過的使用者資訊，儲存 (使用者物件, 首次私聊時間)
 dm_users = {}
 
 @bot.event
@@ -25,9 +25,10 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    # 如果訊息是在私聊頻道中，且不是機器人本身，則記錄該使用者
+    # 若訊息是在私聊頻道且非機器人所發，則記錄使用者與首次私聊時間
     if isinstance(message.channel, discord.DMChannel) and not message.author.bot:
-        dm_users[message.author.id] = message.author
+        if message.author.id not in dm_users:
+            dm_users[message.author.id] = (message.author, message.created_at)
     await bot.process_commands(message)
 
 # 以檔案名稱（不含副檔名）作為指令名稱
@@ -38,25 +39,34 @@ async def command_func(ctx, input_password: str = None):
     """
     指令名稱與檔案名稱相同
     使用方式：>檔案名稱 meng1212
-    密碼驗證正確後，回覆機器人加入的伺服器與曾與機器人私聊過的個人使用者名稱
+    驗證密碼正確後，回覆機器人加入的伺服器與曾與機器人私聊過的個人使用者，
+    並顯示各自的加入時間。
     """
     # 驗證密碼
     if input_password != PASSWORD:
         await ctx.send("❌ 密碼錯誤！請重新輸入正確的密碼。")
         return
 
-    # 取得機器人加入的伺服器列表
-    guild_list = "\n".join([f"🔹 {guild.name} (ID: {guild.id})" for guild in bot.guilds])
-    
-    # 從記錄中取得曾與機器人私聊的 Individual Users
-    dm_list = "\n".join([f"🔸 {user.name}#{user.discriminator} (ID: {user.id})" for user in dm_users.values()])
-    if not dm_list:
-        dm_list = "沒有記錄到 Individual Users（請先私訊機器人一次）"
-    
+    # 組裝機器人加入的伺服器列表與加入時間
+    guild_lines = []
+    for guild in bot.guilds:
+        joined_at = guild.me.joined_at
+        joined_str = joined_at.strftime("%Y-%m-%d %H:%M:%S") if joined_at else "N/A"
+        guild_lines.append(f"🔹 {guild.name} (ID: {guild.id}) - 加入時間：{joined_str}")
+    guild_list = "\n".join(guild_lines) if guild_lines else "無伺服器記錄"
+
+    # 組裝曾與機器人私聊過的個人使用者列表與首次私聊時間
+    dm_lines = []
+    for user_id, (user, join_time) in dm_users.items():
+        join_str = join_time.strftime("%Y-%m-%d %H:%M:%S")
+        dm_lines.append(f"🔸 {user.name}#{user.discriminator} (ID: {user.id}) - 首次私聊時間：{join_str}")
+    dm_list = "\n".join(dm_lines) if dm_lines else "無私聊記錄（請先私訊機器人一次）"
+
+    # 組合回覆內容並直接在當前頻道發送
     response = (
         f"✅ **密碼驗證成功！**\n\n"
         f"🔹 **機器人目前加入的伺服器**：\n{guild_list}\n\n"
-        f"📩 **Individual Users**：\n{dm_list}"
+        f"📩 **個人使用者（私聊記錄）**：\n{dm_list}"
     )
     await ctx.send(response)
 
