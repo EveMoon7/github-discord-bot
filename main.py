@@ -28,7 +28,7 @@ def read_stderr(script, process):
 
 def main():
     # 要啟動的腳本列表
-    scripts = ["boss.py", "food.py", "material.py", "invite.py", "update.py", "help.py", "galgame1.py", "calc.py"]
+    scripts = ["boss.py", "food.py", "material.py", "invite.py", "update.py", "help.py", "galgame1.py", "calc.py", "guild-check.py"]
     processes = []
     threads = []
 
