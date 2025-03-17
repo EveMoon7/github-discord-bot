@@ -120,7 +120,7 @@ def create_boss_embed(boss_info, boss_type):
         value=f"{boss_info.get('屬性', 'N/A')}\n\u200b",
         inline=False
     )
-    embed.add_field(name="物 P.Def", value=f"{boss_info.get('物防', 'N/A')}", inline=True)
+    embed.add_field(name="物防 P.Def", value=f"{boss_info.get('物防', 'N/A')}", inline=True)
     embed.add_field(name="魔防 M.Def", value=f"{boss_info.get('魔防', 'N/A')}\n\u200b", inline=True)
     embed.add_field(name="物理抗性 P.Res", value=f"{boss_info.get('物理抗性', 'N/A')}", inline=True)
     embed.add_field(name="魔法抗性 M.Res", value=f"{boss_info.get('魔法抗性', 'N/A')}\n\u200b", inline=True)
