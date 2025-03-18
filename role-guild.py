@@ -69,7 +69,6 @@ async def send_roles(ctx):
     )
     # 加入橫幅圖片及縮略圖（可依需求自行更換圖片網址）
     embed.set_image(url="https://i.imgur.com/gfWgSUP.jpeg")
-    embed.set_thumbnail(url="https://i.imgur.com/TIujgzc.png")
     embed.set_footer(text="與大家一起，邁向夢想的未來 ♡")
     await ctx.send(embed=embed, view=RoleView())
 
