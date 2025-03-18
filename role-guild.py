@@ -58,7 +58,7 @@ async def send_roles(ctx):
     embed = discord.Embed(
         title="✨ 歡迎來到『Cyloris★圓環之理』 ✨",
         description=(
-            "歡迎新成員，一起打造屬於大家的溫暖家園~！\n\n"
+            "歡迎新成員，一起打造屬於大家的溫暖家園叭~！\n\n"
             "🔹 **Cyloris★圓環之理**：公會內成員點選這個。\n\n"
             "🔹 **異世界旅行者**：公會外的朋友們點選這個。\n\n"
             "🔹 **官方資訊**：托蘭官方資訊通知，掌握最新動態。\n\n"
