@@ -317,7 +317,7 @@ async def on_message(message: discord.Message):
 
     try:
         # 提高多樣性參數以減少重複
-        response = await openai.ChatCompletion.acreate(
+        response = await openai.chat_completions.acreate(
             model="gpt-4o",
             messages=messages_for_ai,
             temperature=1.0,       # 從 0.7 調高到 1.0
