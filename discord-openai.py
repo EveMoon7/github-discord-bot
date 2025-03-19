@@ -317,13 +317,14 @@ async def on_message(message: discord.Message):
 
     try:
         # 提高多樣性參數以減少重複
-        response = await openai.chat_completions.acreate(
-            model="gpt-4o",
-            messages=messages_for_ai,
-            temperature=1.0,       # 從 0.7 調高到 1.0
-            frequency_penalty=1.0, # 從 0.5 調高到 1.0
-            presence_penalty=1.0   # 從 0.5 調高到 1.0
-        )
+        response = await openai.ChatCompletion.acreate(
+        model="gpt-4o",
+        messages=messages_for_ai,
+        temperature=1.0,
+        frequency_penalty=1.0,
+        presence_penalty=1.0
+    )
+
         reply = response.choices[0].message.content.strip()
         reply = remove_emoji(reply)  # 移除回覆中的 emoji
     except Exception as e:
