@@ -200,7 +200,7 @@ data = {
                 "hp": "19090",
                 "location": "寒氣迴廊",
                 "categories": "貝殼II（多）、布料（多）、木材（中）",
-                "drops": "\n- (ss) 盛夏貝殼II - 1336pt\n- (cloth) 冰狼的皮毛 - 2160pt\n- (cloth) 冰狼的軟須-2300pt\n- (wood) 冰冷的樹枝-1980pt\n- (xtal) 迴避+16\n\u200b"
+                "drops": "\n- (ss) 盛夏貝殼II - 1336pt\n- (cloth) 冰狼的皮毛 - 2160pt\n- (cloth) 冰狼的軟須 - 2300pt\n- (wood) 冰冷的樹枝 - 1980pt\n- (xtal) 迴避+16\n\u200b"
             },
             {
                 "level": "Lv 240",
