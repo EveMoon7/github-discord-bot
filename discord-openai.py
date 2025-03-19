@@ -303,7 +303,7 @@ async def on_message(message: discord.Message):
 
     try:
         response = await openai.ChatCompletion.acreate(
-            model="gpt-4",
+            model="gpt-4o",
             messages=messages_for_ai,
             temperature=0.7,
             frequency_penalty=0.5,
