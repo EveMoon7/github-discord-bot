@@ -222,6 +222,7 @@ async def on_message(message: discord.Message):
         await message.channel.send(reply)
         return
 
+    # 收集認知資料
     accumulated_cognition = []
     cursor.execute("SELECT user_id, nickname, cognition FROM user_affection WHERE nickname IS NOT NULL AND nickname != ''")
     all_nickname_records = cursor.fetchall()
