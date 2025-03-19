@@ -172,7 +172,7 @@ data = {
             },   
         ]
     },         
-    "貝殼": {
+    "盛夏貝殼【貝殼季限定】": {
         "emoji": "<:ss:1351949655402876980>",
         "entries": [
             {
@@ -291,9 +291,9 @@ class MaterialSelect(discord.ui.Select):
                 description="魔素素材查詢"                
             ),
             discord.SelectOption(
-                label="貝殼",
+                label="盛夏貝殼【貝殼季限定】",
                 emoji=discord.PartialEmoji(name="ss", id=1351949655402876980),
-                description="貝殼素材查詢"
+                description="盛夏貝殼查詢"
             )
         ]
         super().__init__(placeholder="請選擇素材類別...", min_values=1, max_values=1, options=options)
@@ -316,13 +316,10 @@ class MaterialSelect(discord.ui.Select):
                 emoji_display = emoji_str  # fallback: 未找到 emoji 物件則使用原始字串
         except Exception:
             emoji_display = emoji_str
-
-        # 若選擇的分類為「貝殼」，則在標題後面附加【貝殼季限定】
-        extra_text = "【貝殼季限定】" if selected == "貝殼" else ""
         
         # 利用裝飾符號與換行讓標題看起來更大、更好看
         embed = discord.Embed(
-            title=f"━━━━━━━━━━━━━━━━━━\n✨ {selected} 素材刷點資訊 {emoji_display} ✨ {extra_text}\n━━━━━━━━━━━━━━━━━━",
+            title=f"━━━━━━━━━━━━━━━━━━\n✨ {selected} 素材刷點資訊 {emoji_display} ✨\n━━━━━━━━━━━━━━━━━━",
             color=discord.Color.from_rgb(255, 182, 193)
         )
         for entry in category_data["entries"]:
