@@ -213,6 +213,15 @@ async def on_message(message: discord.Message):
         row = cursor.fetchone()
     db_user_id, db_name, db_nickname, db_affection, db_greeting, db_cognition, db_chat = row
 
+    # 新增：如果用戶的訊息只有 @女僕月醬 且無其他文字，則使用 greeting 回覆
+    if message.content.strip() == client.user.mention:
+        if db_greeting and db_greeting.strip():
+            reply = db_greeting.strip()
+        else:
+            reply = "主人貴安~（提裙禮"
+        await message.channel.send(reply)
+        return
+
     accumulated_cognition = []
     cursor.execute("SELECT user_id, nickname, cognition FROM user_affection WHERE nickname IS NOT NULL AND nickname != ''")
     all_nickname_records = cursor.fetchall()
