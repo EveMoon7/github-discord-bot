@@ -20,10 +20,10 @@ data = {
                 "drops": "\n- (metal) 神性石塊 - 1425pt\n- (metal) 裂掉的光圈 - 1336pt\n- (cloth) 神秘光布 - 1603pt\n- (magic_device) 稜鏡之環\n\u200b"
             },
             {
-                "level": "Lv 223",
+                "level": "Lv 226",
                 "name": "魚童獸（水）",
                 "recommended": True,
-                "hp": "27331",
+                "hp": "28064",
                 "location": "寒氣迴廊",
                 "categories": "金屬（多）、秘銀礦石（中）、貝殼II（貝殼季）",
                 "drops": "\n- (metal) 結晶化的尾巴 - 1960pt\n- (metal) 結晶化的腳爪 - 2138pt\n- (ore) 秘銀礦石\n- (additional) 淚痕\n\u200b"
@@ -185,10 +185,10 @@ data = {
                 "drops": "\n- (ss) 盛夏貝殼I - 891pt\n- (metal) 神性石塊 - 1425pt\n- (metal) 裂掉的光圈 - 1336pt\n- (cloth) 神秘光布 - 1603pt\n- (magic_device) 稜鏡之環\n\u200b"
             },
             {
-                "level": "Lv 223",
+                "level": "Lv 226",
                 "name": "魚童獸（水）",
                 "recommended": False,
-                "hp": "27331",
+                "hp": "28064",
                 "location": "寒氣迴廊",
                 "categories": "魔素（多）、金屬（多）、秘銀礦石（中）",
                 "drops": "\n- (ss) 盛夏貝殼II - 1336pt\n- (metal) 結晶化的尾巴 - 1960pt\n- (metal) 結晶化的腳爪 - 2138pt\n- (ore) 秘銀礦石\n- (additional) 淚痕\n\u200b"
