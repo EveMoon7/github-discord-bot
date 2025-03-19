@@ -247,7 +247,7 @@ conversion_rules = {
     "(bowgun)": "<:bowgun:1351949794662154300>",
     "(magic_device)": "<:magic_device:1351949831999852655>",
     "(ore)": "<:ore:1351958692349870210>",
-    "(staff)": "<:staff:1351996486887669770>",
+    "(staff)": "<:staff:1352011081677017088>",
     "(consu_dust)": "<:consu_dust:1352001065603567802>",
 }
 
