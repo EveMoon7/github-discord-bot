@@ -213,8 +213,8 @@ async def on_message(message: discord.Message):
         row = cursor.fetchone()
     db_user_id, db_name, db_nickname, db_affection, db_greeting, db_cognition, db_chat = row
 
-    # 新增：如果用戶的訊息只有 @女僕月醬 且無其他文字，則使用 greeting 回覆
-    if message.content.strip() == client.user.mention:
+    # 新增：若用戶的訊息只有 @女僕月醬（考慮提及格式），則使用 greeting 回覆
+    if message.content.strip() in [f"<@{client.user.id}>", f"<@!{client.user.id}>"]:
         if db_greeting and db_greeting.strip():
             reply = db_greeting.strip()
         else:
