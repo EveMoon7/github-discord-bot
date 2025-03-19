@@ -182,7 +182,7 @@ data = {
                 "hp": "17488",
                 "location": "眾神之殿·第2区",
                 "categories": "魔素（多）、金屬（多）、布料（少）",
-                "drops": "\n- (ss) 盛夏貝殼 - 891pt\n- (metal) 神性石塊 - 1425pt\n- (metal) 裂掉的光圈 - 1336pt\n- (cloth) 神秘光布 - 1603pt\n- (magic_device) 稜鏡之環\n\u200b"
+                "drops": "\n- (ss) 盛夏貝殼I - 891pt\n- (metal) 神性石塊 - 1425pt\n- (metal) 裂掉的光圈 - 1336pt\n- (cloth) 神秘光布 - 1603pt\n- (magic_device) 稜鏡之環\n\u200b"
             },
             {
                 "level": "Lv 223",
