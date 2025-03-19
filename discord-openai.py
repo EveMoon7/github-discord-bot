@@ -213,6 +213,16 @@ async def on_message(message: discord.Message):
         row = cursor.fetchone()
     db_user_id, db_name, db_nickname, db_affection, db_greeting, db_cognition, db_chat = row
 
+    # 修正檢查：如果訊息內容與機器人提及完全匹配，則根據 greeting 回覆
+    if message.content.strip() in [f"<@{client.user.id}>", f"<@!{client.user.id}>"]:
+        if db_greeting and db_greeting.strip():
+            reply = db_greeting.strip()
+        else:
+            reply = "主人貴安~（提裙禮"
+        await message.channel.send(reply)
+        return
+
+    # 收集認知資料
     accumulated_cognition = []
     cursor.execute("SELECT user_id, nickname, cognition FROM user_affection WHERE nickname IS NOT NULL AND nickname != ''")
     all_nickname_records = cursor.fetchall()
