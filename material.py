@@ -181,8 +181,8 @@ data = {
                 "recommended": False,
                 "hp": "17488",
                 "location": "眾神之殿·第2区",
-                "categories": "貝殼I（多）、金屬（多）、布料（少）",
-                "drops": "\n- (ss) 盛夏貝殼 - 891pt\n- (metal) 神性石塊 - 1425pt\n- (metal) 裂掉的光圈 - 1336pt\n- (cloth) 神秘光布 - 1603pt\n\u200b"
+                "categories": "魔素（多）、金屬（多）、布料（少）",
+                "drops": "\n- (ss) 盛夏貝殼 - 891pt\n- (metal) 神性石塊 - 1425pt\n- (metal) 裂掉的光圈 - 1336pt\n- (cloth) 神秘光布 - 1603pt\n- (magic_device) 稜鏡之環\n\u200b"
             },
             {
                 "level": "Lv 223",
@@ -190,7 +190,7 @@ data = {
                 "recommended": False,
                 "hp": "27331",
                 "location": "寒氣迴廊",
-                "categories": "貝殼II（多）、金屬（多）、秘銀礦石（中）",
+                "categories": "魔素（多）、金屬（多）、秘銀礦石（中）",
                 "drops": "\n- (ss) 盛夏貝殼II - 1336pt\n- (metal) 結晶化的尾巴 - 1960pt\n- (metal) 結晶化的腳爪 - 2138pt\n- (ore) 秘銀礦石\n- (additional) 淚痕\n\u200b"
             },
             {
@@ -199,7 +199,7 @@ data = {
                 "recommended": False,
                 "hp": "19090",
                 "location": "寒氣迴廊",
-                "categories": "貝殼II（多）、布料（多）、木材（中）",
+                "categories": "魔素（多）、布料（多）、木材（中）",
                 "drops": "\n- (ss) 盛夏貝殼II - 1336pt\n- (cloth) 冰狼的皮毛 - 2160pt\n- (cloth) 冰狼的軟須 - 2300pt\n- (wood) 冰冷的樹枝 - 1980pt\n- (xtal) 迴避+16\n\u200b"
             },
             {
@@ -208,7 +208,7 @@ data = {
                 "recommended": False,
                 "hp": "58000",
                 "location": "廢棄區·第一區",
-                "categories": "貝殼II（多）、布料（中）、藥品（中）",
+                "categories": "魔素（多）、布料（中）、藥品（中）",
                 "drops": "\n- (ss) 盛夏貝殼II - 1336pt\n- (cloth) 有彈性的皮 - 2138pt\n- (consu) 鮟鱇魚柳 - 2317pt\n- (consu) 高級鮟鱇魚肝 - 2495pt\n- (bowgun) 維托斯弩槍\n\u200b"
             },
             {
@@ -217,7 +217,7 @@ data = {
                 "recommended": False,
                 "hp": "51000",
                 "location": "廢棄區·第一區",
-                "categories": "貝殼II（多）、獸品（中）、布料（中）、藥品（少）",
+                "categories": "魔素（多）、獸品（中）、布料（中）、藥品（少）",
                 "drops": "\n- (ss) 盛夏貝殼II - 1336pt\n- (beast) 魚的毒牙 - 2138pt\n- (cloth) 銳利的胸鰭 - 2316pt\n- (consu) 美味魚肉 - 2494pt\n- (staff) 扭曲法杖\n\u200b"
             }     
         ]       
