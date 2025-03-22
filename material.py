@@ -153,7 +153,7 @@ data = {
                 "recommended": False,
                 "hp": "58115",
                 "location": "波瑪．空達．地下區域",
-                "categories": "藥品、獸品",
+                "categories": "藥品（多）、獸品（中）",
                 "drops": "\n- (medicine) 髒髒的雜草 - 1960pt\n- (medicine) 吃了一半的蘑菇 - 2160pt\n- (beast) 巨大的頭盾 - 2317pt\n- (bowgun) 錨弩\n\u200b"
             } 
         ]

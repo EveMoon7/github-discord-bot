@@ -148,6 +148,8 @@ def create_boss_embed(boss_info, boss_type):
     if boss_info.get("普攻-慣性變動-多"):
         embed.add_field(name="普攻-慣性變動", value=f"{boss_info.get('普攻-慣性變動-多')}\n\u200b", inline=True)
 
+    if boss_info.get("武器抗性"):
+        embed.add_field(name="⋆˙ 武器抗性 Weapon.Res ˙⋆", value=f"{boss_info.get('武器抗性')}\n\u200b", inline=False)
     if boss_info.get("控制"):
         embed.add_field(name="⋆˙ 控制 FTS ˙⋆", value=f"{boss_info.get('控制')}\n\u200b", inline=False)
     if boss_info.get("階段"):
