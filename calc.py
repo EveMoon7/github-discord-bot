@@ -197,7 +197,9 @@ mq_data = {
     "苦澀的真相 The Bitter Truth": 173800000,
     "粗野的拉納族王子 The Uncouth Rana Prince": 178800000,
     "變異寇現連生體村 Mutant Coenubia Village": 183900000,
-    "與變異利古希族的激戰 Fierce Battle with Mutant Lixis": 189000000
+    "與變異利古希族的激戰 Fierce Battle with Mutant Lixis": 189000000,
+    "Chapter 15 寇珥連生體的覺醒": "",
+    "方舟的危機": 210500000
 }
 
 def build_chapters_dict(mq_data: dict) -> dict:
@@ -345,9 +347,9 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
     )
     target_level = discord.ui.TextInput(
         label="目標等級",
-        placeholder="例: 295 或 295 (50%)",
+        placeholder="例: 300 或 300 (50%)",
         style=discord.TextStyle.short,
-        default="295",
+        default="300",
         required=False
     )
     chapter_range = discord.ui.TextInput(
@@ -663,9 +665,9 @@ def calculate_ability_points(level: int, highest_level: int,
 # SkillCalcModal 與 AbilityCalcModal（採用 discord.ui.Modal）
 class SkillCalcModal(discord.ui.Modal, title="托蘭技能點計算器"):
     level_info = discord.ui.TextInput(
-        label="當前角色等級 / 賬號最高章節",
-        placeholder="Lv.? / 章節",
-        default="Lv295 / 11章",
+        label="當前角色等級 / 賬號最高章節（上限11章）",
+        placeholder="Lv.? / 章節(最高11)",
+        default="Lv300 / 11章",
         required=False
     )
     combat_record = discord.ui.TextInput(
@@ -799,13 +801,13 @@ class AbilityCalcModal(discord.ui.Modal, title="托蘭能力值計算器"):
     level = discord.ui.TextInput(
         label="當前角色等級",
         placeholder="Lv.?",
-        default="Lv295",
+        default="Lv300",
         required=False
     )
     account_info = discord.ui.TextInput(
         label="賬號最高等級",
         placeholder="Lv.?",
-        default="Lv295",
+        default="Lv300",
         required=False
     )
     combat_stats = discord.ui.TextInput(
