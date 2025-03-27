@@ -26,7 +26,7 @@ async def help(ctx):
     embed.add_field(name=">boss", value="Boss數據查詢", inline=False)
     embed.add_field(name=">food", value="料理地址查詢", inline=False)
     embed.add_field(name=">mat", value="素材刷點導航", inline=False)
-    embed.add_field(name=">calc", value="各種功能計算器", inline=False)
+    embed.add_field(name=">calc", value="各種模擬器(主線/技能點/能力點)", inline=False)
     
     embed.set_footer(text="要常常呼叫月醬出來玩哦～")
     await ctx.send(embed=embed)

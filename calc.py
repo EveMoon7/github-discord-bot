@@ -496,7 +496,7 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
                     description += f"{i}. 未能完成任務 Lv.{run_level} ({int(run_progress)}%)\n"
 
         result_embed = discord.Embed(
-            title="★⋆｡ 女僕月醬的主綫經驗計算器 ｡⋆★",
+            title="★⋆｡ 女僕月醬的主綫經驗模擬器 ｡⋆★",
             description=description,
             color=0xFFC0CB
         )
@@ -510,7 +510,7 @@ class BaseModal(discord.ui.Modal, title="角色等級＆目標"):
         if interaction.user.id in user_start_message:
             await interaction.response.edit_message(content="", embed=result_embed, view=None)
         else:
-            await interaction.response.send_message("無法找到原始訊息，請重新啟動計算器。", ephemeral=False)
+            await interaction.response.send_message("無法找到原始訊息，請重新啟動模擬器。", ephemeral=False)
 
 # ======================================================================
 # 以下為 skill_calc.py 的數據邏輯與互動介面
@@ -663,7 +663,7 @@ def calculate_ability_points(level: int, highest_level: int,
     return base_stat + ability_bonus_total
 
 # SkillCalcModal 與 AbilityCalcModal（採用 discord.ui.Modal）
-class SkillCalcModal(discord.ui.Modal, title="托蘭技能點計算器"):
+class SkillCalcModal(discord.ui.Modal, title="托蘭技能點模擬器"):
     level_info = discord.ui.TextInput(
         label="當前角色等級 / 賬號最高章節（上限11章）",
         placeholder="Lv.? / 章節(最高11)",
@@ -780,7 +780,7 @@ class SkillCalcModal(discord.ui.Modal, title="托蘭技能點計算器"):
         description = f"**━━✨達成結果✨━━**\n\n**技能點數 = {skill_total}**\n**━━━━━━━━━━━━**"
         
         result_embed = discord.Embed(
-            title="★⋆｡ 技能點數計算器 ｡⋆★",
+            title="★⋆｡ 技能點數模擬器 ｡⋆★",
             description=description,
             color=0xFFC0CB
         )
@@ -797,7 +797,7 @@ class SkillCalcModal(discord.ui.Modal, title="托蘭技能點計算器"):
         
         await interaction.response.edit_message(embed=result_embed, view=None)
 
-class AbilityCalcModal(discord.ui.Modal, title="托蘭能力值計算器"):
+class AbilityCalcModal(discord.ui.Modal, title="托蘭能力值模擬器"):
     level = discord.ui.TextInput(
         label="當前角色等級",
         placeholder="Lv.?",
@@ -849,7 +849,7 @@ class AbilityCalcModal(discord.ui.Modal, title="托蘭能力值計算器"):
         description = f"**━━✨達成結果✨━━**\n\n**能力點數 = {ability_total}**\n**━━━━━━━━━━━━**"
         
         result_embed = discord.Embed(
-            title="★⋆｡ 能力值計算器 ｡⋆★",
+            title="★⋆｡ 能力值模擬器 ｡⋆★",
             description=description,
             color=0xFFC0CB
         )
@@ -886,12 +886,12 @@ class ExpCalcButtonView(discord.ui.View):
             child.disabled = True
         # 如果原訊息有記錄，可選擇編輯訊息更新 View 狀態
 
-    @discord.ui.button(label="主綫經驗計算器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="主綫經驗模擬器", style=discord.ButtonStyle.primary)
     async def exp_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(BaseModal(author_id=interaction.user.id))
         except discord.errors.DiscordServerError:
-            await interaction.followup.send("主綫經驗計算器模態視窗發送失敗，請重試。", ephemeral=True)
+            await interaction.followup.send("主綫經驗模擬器模態視窗發送失敗，請重試。", ephemeral=True)
 
 class SkillCalcButtonView(discord.ui.View):
     def __init__(self, author):
@@ -908,12 +908,12 @@ class SkillCalcButtonView(discord.ui.View):
         for child in self.children:
             child.disabled = True
 
-    @discord.ui.button(label="技能點數計算器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="技能點數模擬器", style=discord.ButtonStyle.primary)
     async def skill_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(SkillCalcModal())
         except discord.errors.DiscordServerError:
-            await interaction.followup.send("技能點數計算器模態視窗發送失敗，請重試。", ephemeral=True)
+            await interaction.followup.send("技能點數模擬器模態視窗發送失敗，請重試。", ephemeral=True)
 
 class StatCalcButtonView(discord.ui.View):
     def __init__(self, author):
@@ -930,12 +930,12 @@ class StatCalcButtonView(discord.ui.View):
         for child in self.children:
             child.disabled = True
 
-    @discord.ui.button(label="能力點數計算器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="能力點數模擬器", style=discord.ButtonStyle.primary)
     async def stat_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(AbilityCalcModal())
         except discord.errors.DiscordServerError:
-            await interaction.followup.send("能力點數計算器模態視窗發送失敗，請重試。", ephemeral=True)
+            await interaction.followup.send("能力點數模擬器模態視窗發送失敗，請重試。", ephemeral=True)
 
 # ======================================================================
 # 以下為綜合 View（供 >calc 指令使用）
@@ -943,7 +943,7 @@ class StatCalcButtonView(discord.ui.View):
 
 class CombinedCalcView(discord.ui.View):
     def __init__(self, author):
-        super().__init__(timeout=60.0)
+        super().__init__(timeout=None)
         self.author = author
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
@@ -956,26 +956,26 @@ class CombinedCalcView(discord.ui.View):
         for child in self.children:
             child.disabled = True
 
-    @discord.ui.button(label="主綫經驗計算器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="主綫經驗模擬器", style=discord.ButtonStyle.primary)
     async def exp_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(BaseModal(author_id=interaction.user.id))
         except discord.errors.DiscordServerError:
-            await interaction.followup.send("主綫經驗計算器模態視窗發送失敗，請重試。", ephemeral=True)
+            await interaction.followup.send("主綫經驗模擬器模態視窗發送失敗，請重試。", ephemeral=True)
 
-    @discord.ui.button(label="技能點數計算器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="技能點數模擬器", style=discord.ButtonStyle.primary)
     async def skill_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(SkillCalcModal())
         except discord.errors.DiscordServerError:
-            await interaction.followup.send("技能點數計算器模態視窗發送失敗，請重試。", ephemeral=True)
+            await interaction.followup.send("技能點數模擬器模態視窗發送失敗，請重試。", ephemeral=True)
 
-    @discord.ui.button(label="能力點數計算器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="能力點數模擬器", style=discord.ButtonStyle.primary)
     async def stat_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(AbilityCalcModal())
         except discord.errors.DiscordServerError:
-            await interaction.followup.send("能力點數計算器模態視窗發送失敗，請重試。", ephemeral=True)
+            await interaction.followup.send("能力點數模擬器模態視窗發送失敗，請重試。", ephemeral=True)
 
 # ======================================================================
 # 建立 Bot 與指令（指令前綴設為 >）
