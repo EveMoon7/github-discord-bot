@@ -21,7 +21,8 @@ chapter_titles = {
     "11": "Chapter 11 - 前往托蘭",
     "12": "Chapter 12 - 龍人要塞",
     "13": "Chapter 13 - 水之民族、龍、寇爾連生體",
-    "14": "Chapter 14 - 托蘭本土"
+    "14": "Chapter 14 - 托蘭本土",
+    "15": "Chapter 15 - 寇珥連生體的覺醒"
 }
 
 logging.basicConfig(level=logging.INFO)
