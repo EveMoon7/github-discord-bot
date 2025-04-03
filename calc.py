@@ -956,21 +956,21 @@ class CombinedCalcView(discord.ui.View):
         for child in self.children:
             child.disabled = True
 
-    @discord.ui.button(label="主綫經驗模擬器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="主綫經驗模擬器", style=discord.ButtonStyle.primary, row=0)
     async def exp_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(BaseModal(author_id=interaction.user.id))
         except discord.errors.DiscordServerError:
             await interaction.followup.send("主綫經驗模擬器模態視窗發送失敗，請重試。", ephemeral=True)
 
-    @discord.ui.button(label="技能點數模擬器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="技能點數模擬器", style=discord.ButtonStyle.primary, row=1)
     async def skill_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(SkillCalcModal())
         except discord.errors.DiscordServerError:
             await interaction.followup.send("技能點數模擬器模態視窗發送失敗，請重試。", ephemeral=True)
 
-    @discord.ui.button(label="能力點數模擬器", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="能力點數模擬器", style=discord.ButtonStyle.primary, row=2)
     async def stat_calc_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.response.send_modal(AbilityCalcModal())
@@ -994,7 +994,8 @@ async def calc(ctx):
 # 點擊按鈕後再以 Interaction 的方式顯示模態視窗
 @bot.command()
 async def exp_calc(ctx):
-    await ctx.send("", view=ExpCalcButtonView(ctx.author))
+    msg = await ctx.send("", view=ExpCalcButtonView(ctx.author))
+    user_start_message[ctx.author.id] = msg
 
 @bot.command()
 async def skill_calc(ctx):
