@@ -174,6 +174,16 @@ def create_boss_embed(boss_info, boss_type):
                            "HARD = 2 x 防禦 | 迴避\n"
                            "NIGHTMARE = 4 x 防禦 | 迴避\n"
                            "ULTIMATE = 6 x 防禦 | 迴避")
+        
+    if boss_type in "main":
+        embed.set_footer(text=f"""✧*。 難度倍率 Difficulty 。*✧
+EASY = 0.1 x 防禦 | 迴避
+NORMAL = 1 x 防禦 | 迴避
+HARD = 2 x 防禦 | 迴避
+NIGHTMARE = 4 x 防禦 | 迴避
+ULTIMATE = 6 x 防禦 | 迴避
+HP倍率 = {boss_info.get('hp', 'N/A')} x 0.1/1/2/5/10""")  
+          
     return embed
 
 # ===== 限制只有原指令使用者能操作互動選單 =====
