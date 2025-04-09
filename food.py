@@ -447,7 +447,7 @@ bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 async def on_ready():
     print(f"已登入：{bot.user.name}")
 
-@bot.command(aliases=["addr", "food", "料理", "料理地址"])
+@bot.command(aliases=["addr", "food", "料理", "料理地址", "FOOD"])
 async def query(ctx, *, dish: str = None):
     """
     若僅輸入指令（例如：!food），則顯示主下拉選單；
