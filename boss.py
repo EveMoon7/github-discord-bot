@@ -110,10 +110,18 @@ def create_boss_embed(boss_info, boss_type):
     else:
         phase = raw_phase_str
 
+    # 新增：格式化 HP 數字，每三位加一個逗號
+    hp_original = boss_info.get('hp', 'N/A')
+    try:
+        hp_int = int(hp_original)
+        formatted_hp = f"{hp_int:,}"
+    except (ValueError, TypeError):
+        formatted_hp = hp_original
+
     friendly = boss_type_mapping.get(boss_type, {"label": boss_type.upper()})
     embed = discord.Embed(
         title=f"✧*。{friendly['label']} Boss: {boss_info.get('名稱', '未知')} 。*✧",
-        description=f"❀ 章節 Chapter: {phase} ❀\n❀ 地點: {boss_info.get('地點', '未知')} ❀",
+        description=f"❀ 章節 Chapter: {phase} ❀\n❀ 地點: {boss_info.get('地點', '未知')} ❀\n❀ 基礎HP: {formatted_hp} ❀",
         color=discord.Color.magenta()
     )
     embed.add_field(
@@ -140,7 +148,7 @@ def create_boss_embed(boss_info, boss_type):
         f"普攻: {boss_info.get('普攻-慣性變動', 'N/A')}\n\u200b"
     )
     if boss_info.get("物理-慣性變動"):
-        embed.add_field(name="慣性變動率 Proration", value=inertia_text, inline=False)
+        embed.add_field(name="⋆˙ 慣性變動率 Proration ˙⋆", value=inertia_text, inline=False)
 
     if boss_info.get("物理-慣性變動-多"):
         embed.add_field(name="物理-慣性變動", value=f"{boss_info.get('物理-慣性變動-多')}", inline=True)
@@ -167,7 +175,7 @@ def create_boss_embed(boss_info, boss_type):
     if boss_info.get("圖片"):
         embed.set_image(url=boss_info["圖片"])
 
-    if boss_type in ("main", "event", "different"):
+    if boss_type in ("event", "different"):
         embed.set_footer(text="✧*。 難度倍率 Difficulty 。*✧\n"
                            "EASY = 0.1 x 防禦 | 迴避\n"
                            "NORMAL = 1 x 防禦 | 迴避\n"
@@ -182,8 +190,8 @@ NORMAL = 1 x 防禦 | 迴避
 HARD = 2 x 防禦 | 迴避
 NIGHTMARE = 4 x 防禦 | 迴避
 ULTIMATE = 6 x 防禦 | 迴避
-HP倍率 = {boss_info.get('hp', 'N/A')} x 0.1/1/2/5/10""")  
-          
+HP = {formatted_hp} x 0.1/1/2/5/10""")
+       
     return embed
 
 # ===== 限制只有原指令使用者能操作互動選單 =====
@@ -397,7 +405,8 @@ async def boss(ctx, *, query: str = None):
         boss_info, boss_type = result
         embed = create_boss_embed(boss_info, boss_type)
         await ctx.send(embed=embed)
-
+     
+        
 @bot.event
 async def on_ready():
     logging.info(f"✅ 已登入為 {bot.user}")
