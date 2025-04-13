@@ -2,11 +2,12 @@ import discord
 from discord.ext import commands
 import os
 
-
 # 請記得替換成你自己的 Bot Token，且避免硬編碼 Token（建議使用環境變數）
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-# 定義粉紅色
-PINK = discord.Color.from_rgb(255, 182, 193)
+
+# 定義 PINK 顏色（可以根據需求調整顏色數值）
+PINK = 0xFFB6C1
+
 
 # ---------------------------
 # 資料結構：所有料理資料依組別整理在這裡
@@ -14,11 +15,12 @@ PINK = discord.Color.from_rgb(255, 182, 193)
 data = {
     "mp": {
         "name": "MP上限 (Max Mp)",
+        "nickname": ["mp", "魔力"],  # 你也可以將此處改為列表，例如：["mp", "魔力"]
         "items": [
+            {"id": "1027777", "name": "Aka Shiro", "level": 10},            
             {"id": "1010216", "name": "Salmonella", "level": 10},
             {"id": "1011212", "name": "Epiey!!", "level": 10},
             {"id": "1020808", "name": "ココルル", "level": 10},
-            {"id": "1027777", "name": "Aka Shiro", "level": 10},
             {"id": "2010510", "name": "Ultimateわんわん", "level": 10},
             {"id": "2020101", "name": "Paracetamol", "level": 10},
             {"id": "3017676", "name": "yuxieyoko", "level": 10},
@@ -31,6 +33,7 @@ data = {
     },
     "hp": {
         "name": "HP上限 (Max Hp)",
+        "nickname": ["hp", "生命"],
         "items": [
             {"id": "7071998", "name": "月白Hitomi", "level": 10},
             {"id": "1010032", "name": "★空猫", "level": 10},
@@ -51,8 +54,12 @@ data = {
     },
     "ampr": {
         "name": "攻擊回復 (Ampr)",
+        "nickname": "攻回",
         "items": [
+            {"id": "4040404", "name": "S A R A", "level": 10},
             {"id": "1010017", "name": "평온한날", "level": 10},
+            {"id": "4233333", "name": "AlvinXxX", "level": 10},
+            {"id": "4206969", "name": "xenesis5", "level": 10},
             {"id": "1010596", "name": "冷Hiro☆", "level": 10},
             {"id": "1011010", "name": "0 kara", "level": 10},
             {"id": "1023040", "name": "Quinone (K)", "level": 10},
@@ -60,17 +67,16 @@ data = {
             {"id": "1111000", "name": "カンコウ", "level": 10},
             {"id": "3020777", "name": "白最中", "level": 10},
             {"id": "3201003", "name": "『 K E R R Y 』", "level": 10},
-            {"id": "4040404", "name": "S A R A", "level": 10},
-            {"id": "4206969", "name": "xenesis5", "level": 10},
-            {"id": "4233333", "name": "AlvinXxX", "level": 10},
             {"id": "5236969", "name": "黒澤タイア", "level": 10},
         ]
     },
     "暴擊": {
         "name": "暴击率 (Critical)",
+        "nickname": ["暴擊", "crt"],
         "items": [
             {"id": "1012654", "name": "奏かなで", "level": 10},
             {"id": "7071999", "name": "安潔利卡多醬耶耶", "level": 10},
+            {"id": "7162029", "name": "Player20", "level": 10},
             {"id": "1037777", "name": "Hati Hervor", "level": 10},
             {"id": "1100000", "name": "I n u G a m i •", "level": 10},
             {"id": "1181140", "name": "らんな", "level": 10},
@@ -81,11 +87,11 @@ data = {
             {"id": "4010000", "name": "俺が青娥様", "level": 10},
             {"id": "5119105", "name": "- Kanna -", "level": 10},
             {"id": "6021230", "name": "☆Ｐｉｎａ☆", "level": 10},
-            {"id": "7162029", "name": "Player20", "level": 10},
         ]
     },
     "減仇": {
         "name": "減仇 (-Aggro)",
+        "nickname": "-仇",
         "items": [
             {"id": "1018591", "name": "Mugi〟Nuo☁", "level": 10},
             {"id": "1010038", "name": "dara", "level": 10},
@@ -97,6 +103,7 @@ data = {
     },
     "加仇": {
         "name": "仇恨 (+Aggro)",
+        "nickname": "+仇",
         "items": [
             {"id": "1010207", "name": "Pew_Pew", "level": 10},
             {"id": "1130832", "name": "咲愛", "level": 10},
@@ -110,6 +117,7 @@ data = {
     },
     "對火": {
         "name": "對火傷害增加 (Dte Fire)",
+        "nickname": ["對火", "fire"],
         "items": [
             {"id": "1121212", "name": "RioCakra", "level": 9},
             {"id": "3210106", "name": "♧火のうた", "level": 9},
@@ -120,6 +128,7 @@ data = {
     },
     "對地": {
         "name": "對地傷害增加 (Dte Earth)",
+        "nickname": ["對地", "earth"],
         "items": [
             {"id": "4233333", "name": "AlvinXxX", "level": 10},
             {"id": "2020202", "name": "S A R A", "level": 10},
@@ -129,12 +138,14 @@ data = {
     },
     "對風": {
         "name": "對風傷害增加 (Dte Wind)",
+        "nickname": ["對風", "wind"],
         "items": [
             {"id": "3030303", "name": "S A R A", "level": 10},
         ]
     },
     "對水": {
         "name": "對水傷害增加 (Dte Water)",
+        "nickname": ["對誰", "water"],
         "items": [
             {"id": "1110111", "name": "S A R A", "level": 10},
             {"id": "3210100", "name": "♧水のうた", "level": 10},
@@ -144,6 +155,7 @@ data = {
     },
     "對暗": {
         "name": "對暗傷害增加 (Dte Dark)",
+        "nickname": ["對暗", "dark"],
         "items": [
             {"id": "1190020", "name": "チュレ @迷路屋", "level": 10},
             {"id": "2130776", "name": "サトリール", "level": 10},
@@ -153,6 +165,7 @@ data = {
     },
     "對光": {
         "name": "對光傷害增加 (Dte Light)",
+        "nickname": ["對光", "light"],
         "items": [
             {"id": "4044174", "name": "幻舞蝶劍", "level": 9},
             {"id": "1020345", "name": "Death · Gun", "level": 9},
@@ -161,6 +174,7 @@ data = {
     },
     "對無": {
         "name": "對無傷害增加 (Dte Neutral)",
+        "nickname": ["對無", "neu"],
         "items": [
             {"id": "3080888", "name": "", "level": None},
             {"id": "1199999", "name": "", "level": None},
@@ -171,7 +185,8 @@ data = {
         ]
     },
     "物抗": {
-        "name": "物理抗性 (Pyhsical Presistance)",
+        "name": "物理抗性 (Pyhsical Resistance)",
+        "nickname": ["物抗", "pres", "pyhs res"],
         "items": [
             {"id": "1010081", "name": "Kawasaki", "level": 10},
             {"id": "1020001", "name": "てんげん", "level": 10},
@@ -185,6 +200,7 @@ data = {
     },
     "魔抗": {
         "name": "魔法抗性 (Magic Resistance)",
+        "nickname": ["魔抗", "mres", "magic res"],
         "items": [
             {"id": "1023045", "name": "亞爾瑪", "level": 10},
             {"id": "1111575", "name": "Kiyanh", "level": 10},
@@ -198,6 +214,7 @@ data = {
     },
     "百分比": {
         "name": "百分比屏障 (Factical Barrier)",
+        "nickname": ["百分比", "屏障", "百分"],
         "items": [
             {"id": "1012222", "name": "gaito123", "level": 10},
             {"id": "4010024", "name": "いぐるん", "level": 10},
@@ -213,28 +230,28 @@ data = {
         "name": "Str",
         "items": [
             {"id": "3210303", "name": "Valer", "level": 10},
+            {"id": "2180000", "name": "Ryopin", "level": 10},
+            {"id": "7070777", "name": "-Xen-", "level": 10},
             {"id": "1010055", "name": "Echidna@", "level": 10},
             {"id": "1010968", "name": "アジヤ", "level": 10},
             {"id": "1011069", "name": "A J I", "level": 10},
             {"id": "1110033", "name": "くりぼー☆", "level": 10},
             {"id": "2017890", "name": "みさき*", "level": 10},
             {"id": "2020303", "name": "Amanita", "level": 10},
-            {"id": "2180000", "name": "Ryopin", "level": 10},
             {"id": "4010024", "name": "いぐるん", "level": 10},
             {"id": "5261919", "name": "ルージアル", "level": 10},
-            {"id": "7070777", "name": "-Xen-", "level": 10},
         ]
     },
     "dex": {
         "name": "Dex",
         "items": [
+            {"id": "3111999", "name": "Espur", "level": 10},
             {"id": "1010058", "name": "· H20 ·", "level": 10},
             {"id": "1010106", "name": "Yoku'", "level": 10},
             {"id": "1010261", "name": "イグルー", "level": 10},
             {"id": "1074649", "name": "∮ ノマァ ∮", "level": 10},
             {"id": "1112220", "name": "Kirara♥", "level": 10},
             {"id": "2020222", "name": "Himura Oza", "level": 10},
-            {"id": "3111999", "name": "Espur", "level": 10},
             {"id": "3220777", "name": "☆エトワール☆", "level": 10},
             {"id": "7011001", "name": "【MB】 VolT‾へ凸", "level": 10},
             {"id": "7140777", "name": "Aurianne", "level": 10},
@@ -243,10 +260,10 @@ data = {
     "agi": {
         "name": "Agi",
         "items": [
+            {"id": "7162029", "name": "Player20", "level": 10},
             {"id": "1220777", "name": "サスケU^ェ^U", "level": 10},
             {"id": "2020037", "name": "Mana-T", "level": 10},
             {"id": "4262222", "name": "mashilo", "level": 10},
-            {"id": "7162029", "name": "Player20", "level": 10},
             {"id": "1110033", "name": "くりぼー☆", "level": 9},
             {"id": "6269999", "name": "酒呑", "level": 9},
         ]
@@ -254,13 +271,13 @@ data = {
     "int": {
         "name": "Int",
         "items": [
+            {"id": "1032222", "name": "Shyturu", "level": 10},
+            {"id": "6010701", "name": "ramenEso", "level": 10},
             {"id": "1010140", "name": "かがり", "level": 10},
             {"id": "1010498", "name": "桃夏", "level": 10},
-            {"id": "1032222", "name": "Shyturu", "level": 10},
             {"id": "1047777", "name": "~Zeref~", "level": 10},
             {"id": "2020707", "name": "Ascorbic Acid", "level": 10},
             {"id": "5190001", "name": "シェリア.", "level": 10},
-            {"id": "6010701", "name": "ramenEso", "level": 10},
             {"id": "7130001", "name": "@みげる", "level": 10},
         ]
     },
@@ -272,9 +289,9 @@ data = {
     },
     "武a": {
         "name": "武器攻擊力 (Watk)",
+        "nickname": ["武a", "武器", "武器atk"],
         "items": [
             {"id": "8010300", "name": "Arale", "level": 10},
-            {"id": "", "name": "Dora朵朵", "level": 10},
             {"id": "1010810", "name": "夜トyato☆", "level": 10},
             {"id": "1011122", "name": "ベッキー", "level": 10},
             {"id": "1011126", "name": "ヾferyanz", "level": 10},
@@ -423,7 +440,7 @@ class CategorySelect(discord.ui.Select):
             await interaction.response.edit_message(content="請享用！", embed=embed, view=None)
 
 class CategoryView(RestrictedView):
-    def __init__(self, categories, header="請選擇你要查詢的料理組別：", author: discord.User = None, timeout: float = 60):
+    def __init__(self, categories, header="請選擇你要查詢的料理組別：", author: discord.User = None, timeout: float = None):
         # 若未傳入 author 則預設為 None（請務必傳入觸發指令的使用者）
         super().__init__(author, timeout=timeout)
         self.header = header
@@ -437,7 +454,7 @@ class CategoryView(RestrictedView):
             item.disabled = True
 
 # ---------------------------
-# 建立機器人（設定指令前綴為 "!"）
+# 建立機器人（設定指令前綴為 ">"）
 # ---------------------------
 intents = discord.Intents.default()
 intents.message_content = True
@@ -452,14 +469,38 @@ async def query(ctx, *, dish: str = None):
     """
     若僅輸入指令（例如：!food），則顯示主下拉選單；
     若輸入料理名稱（例如：!food MP上限），則直接搜尋並顯示料理資料。
+    支援料理正式名稱以及多個別名。
+    當用戶輸入含有「抗性」時，將跳出包含「物抗」和「魔抗」的下拉選單。
     """
     if dish:
-        # 搜尋名稱中包含參數字串（不分大小寫）的料理組別
+        query_str = dish.lower()
+        # 若輸入包含「抗性」，則顯示物抗與魔抗的下拉選單
+        if "抗性" in dish:
+            resistance_options = [("物抗", data["物抗"]), ("魔抗", data["魔抗"])]
+            header = "請選擇抗性種類："
+            view = CategoryView(resistance_options, header=header, author=ctx.author)
+            await ctx.send(header, view=view)
+            return
+
         found = None
         for cat_key, cat_data in data.items():
-            if dish.lower() in cat_data["name"].lower():
+            # 比對正式名稱
+            if query_str in cat_data["name"].lower():
                 found = cat_data
                 break
+            # 比對別名：支援多個別名（如果 nickname 為列表則遍歷比對）
+            if cat_data.get("nickname"):
+                if isinstance(cat_data["nickname"], list):
+                    for alias in cat_data["nickname"]:
+                        if query_str in alias.lower():
+                            found = cat_data
+                            break
+                    if found:
+                        break
+                else:
+                    if query_str in cat_data["nickname"].lower():
+                        found = cat_data
+                        break
         if found:
             embed = discord.Embed(title=f"{found['name']} 料理列表", color=PINK)
             dish_list = ""
