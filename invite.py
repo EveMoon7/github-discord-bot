@@ -27,13 +27,7 @@ async def 邀請(ctx):
     
     # 使用新的邀請鏈接
     invite_url = (
-        "https://discord.com/oauth2/authorize?"
-        "client_id=1323232531713359994&"
-        "permissions=2687887424&"
-        "response_type=code&"
-        "redirect_uri=https%3A%2F%2Fdiscordapp.com%2Foauth2%2Fauthorize%3F%26client_id%3D1323232531713359994&"
-        "integration_type=0&"
-        "scope=bot+applications.commands+messages.read"
+        "https://discord.com/oauth2/authorize?client_id=1323232531713359994"
     )
     
     embed.add_field(name="📌 邀請連結", value=f"[🌟 點我召喚 女僕月醬 ✨]({invite_url})", inline=False)
