@@ -14,7 +14,7 @@ bot = commands.Bot(command_prefix=">", intents=intents, help_command=None)
 
 # === 設定 ===
 TARGET_ROLE_NAME = "閱覽者"
-WEBHOOK_URL      = "https://discord.com/api/webhooks/1377978739488460901/-IxnQkHeb39c7PxKAzoU56cdNQ3RauVOc8yLL7stupzdc5EATcNcw-jv74IvVPE2ZzeO"
+WEBHOOK_URL      = "https://discord.com/api/webhooks/1380887132549415022/TFCLF50DSzVixYXbNsqKNPyjyLXshZVvd6QYoqbVCG0XJbYBKYfw-cq_jmgEHgJXMVgW"
 WEBHOOK_NAME     = "Neko醬"
 WEBHOOK_AVATAR   = "https://i.imgur.com/eK8MsDg.png"
 WELCOME_TITLE    = "歡迎新成員！"
