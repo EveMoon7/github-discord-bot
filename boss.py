@@ -175,23 +175,30 @@ def create_boss_embed(boss_info, boss_type):
     if boss_info.get("圖片"):
         embed.set_image(url=boss_info["圖片"])
 
+    編寫者 = boss_info.get("編寫者")
+
     if boss_type in ("event", "different"):
         embed.set_footer(text="✧*。 難度倍率 Difficulty 。*✧\n"
                            "EASY = 0.1 x 防禦 | 迴避\n"
                            "NORMAL = 1 x 防禦 | 迴避\n"
                            "HARD = 2 x 防禦 | 迴避\n"
                            "NIGHTMARE = 4 x 防禦 | 迴避\n"
-                           "ULTIMATE = 6 x 防禦 | 迴避")
+                           "ULTIMATE = 6 x 防禦 | 迴避\n"
+                           f"\n\u200b編寫者：{編寫者}")
         
     if boss_type in "main":
-        embed.set_footer(text=f"""✧*。 難度倍率 Difficulty 。*✧
-EASY = 0.1 x 防禦 | 迴避
-NORMAL = 1 x 防禦 | 迴避
-HARD = 2 x 防禦 | 迴避
-NIGHTMARE = 4 x 防禦 | 迴避
-ULTIMATE = 6 x 防禦 | 迴避
-HP = {formatted_hp} x 0.1/1/2/5/10""")
-       
+        embed.set_footer(text="✧*。 難度倍率 Difficulty 。*✧\n"
+                           "EASY = 0.1 x 防禦 | 迴避\n"
+                           "NORMAL = 1 x 防禦 | 迴避\n"
+                           "HARD = 2 x 防禦 | 迴避\n"
+                           "NIGHTMARE = 4 x 防禦 | 迴避\n"
+                           "ULTIMATE = 6 x 防禦 | 迴避\n"
+                           f"HP = {formatted_hp} x 0.1/1/2/5/10\n"
+                           f"\n\u200b編寫者：{編寫者}")
+
+    if boss_type in ("guild", "high"):
+        embed.set_footer(text=f"\n\u200b編寫者：{編寫者}")
+
     return embed
 
 # ===== 限制只有原指令使用者能操作互動選單 =====
